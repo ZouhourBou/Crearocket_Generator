@@ -1,0 +1,157 @@
+import { GameCardCategory, EducationalCardItem } from '../types/games';
+
+export const DEFAULT_CARDS_BY_CATEGORY: Record<
+  GameCardCategory,
+  { fr: EducationalCardItem[]; en: EducationalCardItem[]; ar: EducationalCardItem[] }
+> = {
+  memory: {
+    fr: [
+      { id: 'm1_a', title: 'Chat', iconName: 'Cat', accentColor: '#f43f5e', pairId: 'p1' },
+      { id: 'm1_b', title: 'Chat', iconName: 'Cat', accentColor: '#f43f5e', pairId: 'p1' },
+      { id: 'm2_a', title: 'Chien', iconName: 'Dog', accentColor: '#3b82f6', pairId: 'p2' },
+      { id: 'm2_b', title: 'Chien', iconName: 'Dog', accentColor: '#3b82f6', pairId: 'p2' },
+      { id: 'm3_a', title: 'Soleil', iconName: 'Sun', accentColor: '#eab308', pairId: 'p3' },
+      { id: 'm3_b', title: 'Soleil', iconName: 'Sun', accentColor: '#eab308', pairId: 'p3' },
+      { id: 'm4_a', title: 'Arbre', iconName: 'Trees', accentColor: '#10b981', pairId: 'p4' },
+      { id: 'm4_b', title: 'Arbre', iconName: 'Trees', accentColor: '#10b981', pairId: 'p4' },
+    ],
+    en: [
+      { id: 'm1_a', title: 'Cat', iconName: 'Cat', accentColor: '#f43f5e', pairId: 'p1' },
+      { id: 'm1_b', title: 'Cat', iconName: 'Cat', accentColor: '#f43f5e', pairId: 'p1' },
+      { id: 'm2_a', title: 'Dog', iconName: 'Dog', accentColor: '#3b82f6', pairId: 'p2' },
+      { id: 'm2_b', title: 'Dog', iconName: 'Dog', accentColor: '#3b82f6', pairId: 'p2' },
+      { id: 'm3_a', title: 'Sun', iconName: 'Sun', accentColor: '#eab308', pairId: 'p3' },
+      { id: 'm3_b', title: 'Sun', iconName: 'Sun', accentColor: '#eab308', pairId: 'p3' },
+      { id: 'm4_a', title: 'Tree', iconName: 'Trees', accentColor: '#10b981', pairId: 'p4' },
+      { id: 'm4_b', title: 'Tree', iconName: 'Trees', accentColor: '#10b981', pairId: 'p4' },
+    ],
+    ar: [
+      { id: 'm1_a', title: 'قِطّ', iconName: 'Cat', accentColor: '#f43f5e', pairId: 'p1' },
+      { id: 'm1_b', title: 'قِطّ', iconName: 'Cat', accentColor: '#f43f5e', pairId: 'p1' },
+      { id: 'm2_a', title: 'كَلْب', iconName: 'Dog', accentColor: '#3b82f6', pairId: 'p2' },
+      { id: 'm2_b', title: 'كَلْب', iconName: 'Dog', accentColor: '#3b82f6', pairId: 'p2' },
+      { id: 'm3_a', title: 'شَمْس', iconName: 'Sun', accentColor: '#eab308', pairId: 'p3' },
+      { id: 'm3_b', title: 'شَمْس', iconName: 'Sun', accentColor: '#eab308', pairId: 'p3' },
+      { id: 'm4_a', title: 'شَجَرَة', iconName: 'Trees', accentColor: '#10b981', pairId: 'p4' },
+      { id: 'm4_b', title: 'شَجَرَة', iconName: 'Trees', accentColor: '#10b981', pairId: 'p4' },
+    ],
+  },
+  vocabulary: {
+    fr: [
+      { id: 'v1', title: 'Pomme', subtitle: 'Fruit rouge et sucré', category: 'Fruits', iconName: 'Apple', accentColor: '#ef4444' },
+      { id: 'v2', title: 'Livre', subtitle: 'Pour lire des histoires', category: 'École', iconName: 'BookOpen', accentColor: '#6366f1' },
+      { id: 'v3', title: 'Fusée', subtitle: 'Voyage dans les étoiles', category: 'Espace', iconName: 'Rocket', accentColor: '#8b5cf6' },
+      { id: 'v4', title: 'Cœur', subtitle: 'Symbole de l\'amour', category: 'Formes', iconName: 'Heart', accentColor: '#ec4899' },
+      { id: 'v5', title: 'Étoile', subtitle: 'Brille dans la nuit', category: 'Ciel', iconName: 'Star', accentColor: '#f59e0b' },
+      { id: 'v6', title: 'Musique', subtitle: 'Notes et mélodies', category: 'Arts', iconName: 'Music', accentColor: '#10b981' },
+    ],
+    en: [
+      { id: 'v1', title: 'Apple', subtitle: 'Sweet red fruit', category: 'Fruits', iconName: 'Apple', accentColor: '#ef4444' },
+      { id: 'v2', title: 'Book', subtitle: 'Reading exciting stories', category: 'School', iconName: 'BookOpen', accentColor: '#6366f1' },
+      { id: 'v3', title: 'Rocket', subtitle: 'Journey to the stars', category: 'Space', iconName: 'Rocket', accentColor: '#8b5cf6' },
+      { id: 'v4', title: 'Heart', subtitle: 'Symbol of affection', category: 'Shapes', iconName: 'Heart', accentColor: '#ec4899' },
+      { id: 'v5', title: 'Star', subtitle: 'Shining bright at night', category: 'Sky', iconName: 'Star', accentColor: '#f59e0b' },
+      { id: 'v6', title: 'Music', subtitle: 'Rhythms and tunes', category: 'Arts', iconName: 'Music', accentColor: '#10b981' },
+    ],
+    ar: [
+      { id: 'v1', title: 'تُفَّاحَة', subtitle: 'فاكهة لذيذة ومفيدة', category: 'فواكه', iconName: 'Apple', accentColor: '#ef4444' },
+      { id: 'v2', title: 'كِتَاب', subtitle: 'لقراءة القصص الشيقة', category: 'مدرسة', iconName: 'BookOpen', accentColor: '#6366f1' },
+      { id: 'v3', title: 'صَارُوخ', subtitle: 'يسافر نحو الفضاء', category: 'فضاء', iconName: 'Rocket', accentColor: '#8b5cf6' },
+      { id: 'v4', title: 'قَلْب', subtitle: 'رمز المحبة والمودة', category: 'أشكال', iconName: 'Heart', accentColor: '#ec4899' },
+      { id: 'v5', title: 'نَجْمَة', subtitle: 'تضيء سماء الليل', category: 'سماء', iconName: 'Star', accentColor: '#f59e0b' },
+      { id: 'v6', title: 'مُوسِيقَى', subtitle: 'ألحان ونغمات عذبة', category: 'فنون', iconName: 'Music', accentColor: '#10b981' },
+    ],
+  },
+  qa: {
+    fr: [
+      { id: 'qa1', title: 'Combien de pattes a une araignée ?', subtitle: 'Réponse : 8 pattes', category: 'Nature', iconName: 'HelpCircle', accentColor: '#f97316' },
+      { id: 'qa2', title: 'Quelle est la planète la plus proche du Soleil ?', subtitle: 'Réponse : Mercure', category: 'Sciences', iconName: 'HelpCircle', accentColor: '#3b82f6' },
+      { id: 'qa3', title: 'Quel est le résultat de 7 × 8 ?', subtitle: 'Réponse : 56', category: 'Calcul', iconName: 'HelpCircle', accentColor: '#10b981' },
+      { id: 'qa4', title: 'Quelle est la capitale de la France ?', subtitle: 'Réponse : Paris', category: 'Géographie', iconName: 'HelpCircle', accentColor: '#8b5cf6' },
+    ],
+    en: [
+      { id: 'qa1', title: 'How many legs does a spider have?', subtitle: 'Answer: 8 legs', category: 'Nature', iconName: 'HelpCircle', accentColor: '#f97316' },
+      { id: 'qa2', title: 'Which planet is closest to the Sun?', subtitle: 'Answer: Mercury', category: 'Science', iconName: 'HelpCircle', accentColor: '#3b82f6' },
+      { id: 'qa3', title: 'What is 7 × 8?', subtitle: 'Answer: 56', category: 'Math', iconName: 'HelpCircle', accentColor: '#10b981' },
+      { id: 'qa4', title: 'What is the capital of France?', subtitle: 'Answer: Paris', category: 'Geography', iconName: 'HelpCircle', accentColor: '#8b5cf6' },
+    ],
+    ar: [
+      { id: 'qa1', title: 'كم عدد أرجل العنكبوت؟', subtitle: 'الجواب: 8 أرجل', category: 'طبيعة', iconName: 'HelpCircle', accentColor: '#f97316' },
+      { id: 'qa2', title: 'ما هو أقرب كوكب إلى الشمس؟', subtitle: 'الجواب: كوكب عطارد', category: 'علوم', iconName: 'HelpCircle', accentColor: '#3b82f6' },
+      { id: 'qa3', title: 'ما هو حاصل ضرب 7 × 8؟', subtitle: 'الجواب: 56', category: 'حساب', iconName: 'HelpCircle', accentColor: '#10b981' },
+      { id: 'qa4', title: 'ما هي عاصمة فرنسا؟', subtitle: 'الجواب: باريس', category: 'جغرافيا', iconName: 'HelpCircle', accentColor: '#8b5cf6' },
+    ],
+  },
+  image_word: {
+    fr: [
+      { id: 'iw1', title: 'Horloge', subtitle: 'HORLOGE', category: 'Maison', iconName: 'Clock', accentColor: '#0ea5e9' },
+      { id: 'iw2', title: 'Cadeau', subtitle: 'CADEAU', category: 'Fête', iconName: 'Gift', accentColor: '#ec4899' },
+      { id: 'iw3', title: 'Couronne', subtitle: 'COURONNE', category: 'Contes', iconName: 'Crown', accentColor: '#f59e0b' },
+      { id: 'iw4', title: 'Lampe', subtitle: 'LAMPE', category: 'Maison', iconName: 'Lightbulb', accentColor: '#eab308' },
+    ],
+    en: [
+      { id: 'iw1', title: 'Clock', subtitle: 'CLOCK', category: 'Home', iconName: 'Clock', accentColor: '#0ea5e9' },
+      { id: 'iw2', title: 'Gift', subtitle: 'GIFT', category: 'Party', iconName: 'Gift', accentColor: '#ec4899' },
+      { id: 'iw3', title: 'Crown', subtitle: 'CROWN', category: 'Stories', iconName: 'Crown', accentColor: '#f59e0b' },
+      { id: 'iw4', title: 'Light', subtitle: 'LIGHT', category: 'Home', iconName: 'Lightbulb', accentColor: '#eab308' },
+    ],
+    ar: [
+      { id: 'iw1', title: 'سَاعَة', subtitle: 'سَاعَة', category: 'منزل', iconName: 'Clock', accentColor: '#0ea5e9' },
+      { id: 'iw2', title: 'هَدِيَّة', subtitle: 'هَدِيَّة', category: 'احتفال', iconName: 'Gift', accentColor: '#ec4899' },
+      { id: 'iw3', title: 'تَاج', subtitle: 'تَاج', category: 'قصص', iconName: 'Crown', accentColor: '#f59e0b' },
+      { id: 'iw4', title: 'مِصْبَاح', subtitle: 'مِصْبَاح', category: 'منزل', iconName: 'Lightbulb', accentColor: '#eab308' },
+    ],
+  },
+  letter_image: {
+    fr: [
+      { id: 'li1', title: 'A', subtitle: 'Avion', category: 'Alphabet', iconName: 'Plane', accentColor: '#3b82f6' },
+      { id: 'li2', title: 'B', subtitle: 'Bateau', category: 'Alphabet', iconName: 'Ship', accentColor: '#06b6d4' },
+      { id: 'li3', title: 'C', subtitle: 'Cœur', category: 'Alphabet', iconName: 'Heart', accentColor: '#ef4444' },
+      { id: 'li4', title: 'E', subtitle: 'Étoile', category: 'Alphabet', iconName: 'Star', accentColor: '#f59e0b' },
+      { id: 'li5', title: 'L', subtitle: 'Livre', category: 'Alphabet', iconName: 'BookOpen', accentColor: '#10b981' },
+      { id: 'li6', title: 'S', subtitle: 'Soleil', category: 'Alphabet', iconName: 'Sun', accentColor: '#eab308' },
+    ],
+    en: [
+      { id: 'li1', title: 'A', subtitle: 'Airplane', category: 'Alphabet', iconName: 'Plane', accentColor: '#3b82f6' },
+      { id: 'li2', title: 'B', subtitle: 'Boat', category: 'Alphabet', iconName: 'Ship', accentColor: '#06b6d4' },
+      { id: 'li3', title: 'C', subtitle: 'Crown', category: 'Alphabet', iconName: 'Crown', accentColor: '#ef4444' },
+      { id: 'li4', title: 'E', subtitle: 'Earth', category: 'Alphabet', iconName: 'Globe', accentColor: '#f59e0b' },
+      { id: 'li5', title: 'M', subtitle: 'Music', category: 'Alphabet', iconName: 'Music', accentColor: '#10b981' },
+      { id: 'li6', title: 'S', subtitle: 'Sun', category: 'Alphabet', iconName: 'Sun', accentColor: '#eab308' },
+    ],
+    ar: [
+      { id: 'li1', title: 'أ', subtitle: 'أَسَد', category: 'الحروف', iconName: 'Cat', accentColor: '#3b82f6' },
+      { id: 'li2', title: 'ب', subtitle: 'بَاب', category: 'الحروف', iconName: 'DoorClosed', accentColor: '#06b6d4' },
+      { id: 'li3', title: 'ت', subtitle: 'تُفَّاحَة', category: 'الحروف', iconName: 'Apple', accentColor: '#ef4444' },
+      { id: 'li4', title: 'ش', subtitle: 'شَمْس', category: 'الحروف', iconName: 'Sun', accentColor: '#f59e0b' },
+      { id: 'li5', title: 'ق', subtitle: 'قَلَم', category: 'الحروف', iconName: 'PenTool', accentColor: '#10b981' },
+      { id: 'li6', title: 'ك', subtitle: 'كِتَاب', category: 'الحروف', iconName: 'BookOpen', accentColor: '#8b5cf6' },
+    ],
+  },
+  number_quantity: {
+    fr: [
+      { id: 'nq1', title: '1', subtitle: 'Un', category: 'Nombres', iconName: 'Star', accentColor: '#ef4444' },
+      { id: 'nq2', title: '2', subtitle: 'Deux', category: 'Nombres', iconName: 'Star', accentColor: '#f97316' },
+      { id: 'nq3', title: '3', subtitle: 'Trois', category: 'Nombres', iconName: 'Star', accentColor: '#f59e0b' },
+      { id: 'nq4', title: '4', subtitle: 'Quatre', category: 'Nombres', iconName: 'Star', accentColor: '#10b981' },
+      { id: 'nq5', title: '5', subtitle: 'Cinq', category: 'Nombres', iconName: 'Star', accentColor: '#06b6d4' },
+      { id: 'nq6', title: '6', subtitle: 'Six', category: 'Nombres', iconName: 'Star', accentColor: '#6366f1' },
+    ],
+    en: [
+      { id: 'nq1', title: '1', subtitle: 'One', category: 'Numbers', iconName: 'Star', accentColor: '#ef4444' },
+      { id: 'nq2', title: '2', subtitle: 'Two', category: 'Numbers', iconName: 'Star', accentColor: '#f97316' },
+      { id: 'nq3', title: '3', subtitle: 'Three', category: 'Numbers', iconName: 'Star', accentColor: '#f59e0b' },
+      { id: 'nq4', title: '4', subtitle: 'Four', category: 'Numbers', iconName: 'Star', accentColor: '#10b981' },
+      { id: 'nq5', title: '5', subtitle: 'Five', category: 'Numbers', iconName: 'Star', accentColor: '#06b6d4' },
+      { id: 'nq6', title: '6', subtitle: 'Six', category: 'Numbers', iconName: 'Star', accentColor: '#6366f1' },
+    ],
+    ar: [
+      { id: 'nq1', title: '1', subtitle: 'وَاحِد', category: 'الأعداد', iconName: 'Star', accentColor: '#ef4444' },
+      { id: 'nq2', title: '2', subtitle: 'اثْنَان', category: 'الأعداد', iconName: 'Star', accentColor: '#f97316' },
+      { id: 'nq3', title: '3', subtitle: 'ثَلَاثَة', category: 'الأعداد', iconName: 'Star', accentColor: '#f59e0b' },
+      { id: 'nq4', title: '4', subtitle: 'أَرْبَعَة', category: 'الأعداد', iconName: 'Star', accentColor: '#10b981' },
+      { id: 'nq5', title: '5', subtitle: 'خَمْسَة', category: 'الأعداد', iconName: 'Star', accentColor: '#06b6d4' },
+      { id: 'nq6', title: '6', subtitle: 'سِتَّة', category: 'الأعداد', iconName: 'Star', accentColor: '#6366f1' },
+    ],
+  },
+};

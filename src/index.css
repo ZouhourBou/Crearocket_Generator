@@ -1,0 +1,88 @@
+@import "tailwindcss";
+
+/* Discreet custom scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 9999px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Modern, rounded typography for student names */
+.font-label-name {
+  font-family: 'Outfit', 'Cairo', 'Tajawal', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  letter-spacing: -0.015em;
+}
+
+/* Dedicated Arabic typography: strictly ZERO letter-spacing to preserve cursive ligatures in Canvas & print */
+.font-arabic,
+[dir="rtl"] .font-label-name,
+.font-label-name[dir="rtl"],
+[dir="rtl"] {
+  letter-spacing: 0px !important;
+}
+
+.font-arabic {
+  font-family: 'Cairo', 'Tajawal', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Pedagogical Handwriting Styles */
+.font-schoolbell {
+  font-family: 'Schoolbell', cursive, sans-serif;
+}
+.font-patrick {
+  font-family: 'Patrick Hand', cursive, sans-serif;
+}
+.font-comic {
+  font-family: 'Comic Neue', cursive, sans-serif;
+}
+.font-mali {
+  font-family: 'Mali', cursive, sans-serif;
+}
+.font-amiri {
+  font-family: 'Amiri', serif;
+}
+
+/* Tabular figures for math vertical alignment */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+/* Direct Print optimization */
+@media print {
+  body {
+    background: #ffffff !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  body * {
+    visibility: hidden;
+  }
+  #printable-paper-sheet,
+  #printable-paper-sheet * {
+    visibility: visible;
+  }
+  #printable-paper-sheet {
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%) !important;
+    box-shadow: none !important;
+    margin: 0 !important;
+  }
+  @page {
+    margin: 0;
+    size: auto;
+  }
+}

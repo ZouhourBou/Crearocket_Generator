@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 52" width="260" height="52" fill="none">
+  <defs>
+    <linearGradient id="crRedGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#E11D48"/>
+      <stop offset="40%" stop-color="#D1192A"/>
+      <stop offset="100%" stop-color="#B91C1C"/>
+    </linearGradient>
+    <filter id="crRedShadow" x="-10%" y="-10%" width="120%" height="130%" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="1.5" stdDeviation="2.5" flood-color="#991B1B" flood-opacity="0.25"/>
+    </filter>
+  </defs>
+
+  <!-- 1. Official CreaRocket Red Rounded Badge with White Icon -->
+  <g transform="translate(4, 4)">
+    <rect x="0" y="0" width="44" height="44" rx="11" fill="url(#crRedGradient)" filter="url(#crRedShadow)"/>
+    <g transform="translate(6, 6)">
+      <!-- Rocket Main Fuselage Body -->
+      <path d="M24.8 7.2 C24.8 7.2, 17.5 9.8, 12.8 17.2 C12.2 18.2, 12.5 19.5, 13.5 20.2 L17.8 23.5 C18.7 24.2, 19.8 24.0, 20.6 23.2 C26.2 17.5, 24.8 7.2, 24.8 7.2 Z" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+      <!-- Left Delta Fin / Wing -->
+      <path d="M14.8 14.2 L9.5 14.8 C8.2 14.9, 7.6 16.5, 8.6 17.4 L12.5 20.2" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <!-- Right Delta Fin / Wing -->
+      <path d="M21.8 19.2 L22.4 24.5 C22.5 25.8, 24.1 26.4, 25.0 25.4 L23.8 20.5" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <!-- Porthole / Window -->
+      <circle cx="19.5" cy="12.5" r="2.3" stroke="#FFFFFF" stroke-width="2" fill="none"/>
+      <!-- Exhaust Thruster Plumes / Flames -->
+      <path d="M13.8 23.2 C11.5 26.0, 8.5 28.5, 6.8 30.5" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round"/>
+      <path d="M11.5 21.8 C9.8 23.8, 7.2 25.8, 5.5 27.2" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M16.2 25.5 C14.5 27.5, 12.0 29.5, 10.2 31.0" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round"/>
+    </g>
+  </g>
+
+  <!-- 2. Typography: 'Crea' (Black) + 'Rocket' (Red) -->
+  <text x="58" y="24" font-family="'Plus Jakarta Sans', 'Outfit', 'Inter', system-ui, -apple-system, sans-serif" letter-spacing="-0.3">
+    <tspan fill="#000000" font-weight="700" font-size="22">Crea</tspan>
+    <tspan fill="#D1192A" font-weight="800" font-size="22">Rocket</tspan>
+  </text>
+
+  <!-- 3. Sub-label: GENERATOR PRO -->
+  <g transform="translate(58, 30)">
+    <text x="0" y="13" font-family="'Plus Jakarta Sans', 'Inter', system-ui, sans-serif" font-weight="800" font-size="11.5" fill="#D1192A" letter-spacing="2.6">GENERATOR</text>
+    <g transform="translate(98, 3.5)">
+      <rect x="0" y="0" width="30" height="11" rx="5.5" fill="#FEF2F2" stroke="#FCA5A5" stroke-width="1"/>
+      <text x="15" y="8" text-anchor="middle" font-family="'Plus Jakarta Sans', sans-serif" font-weight="900" font-size="7" fill="#B91C1C" letter-spacing="0.8">PRO</text>
+    </g>
+  </g>
+</svg>

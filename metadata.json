@@ -1,0 +1,8 @@
+{
+  "name": "Remix Remix Crearocket Generator",
+  "description": "Plateforme officielle CreatRocket Generator Pro : générateurs scolaires d'étiquettes & kits anniversaire, petites histoires personnalisées (mini-livres illustrés), devoirs & exercices, écriture manuscrite, mathématiques, jeux & énigmes, apprentissage de l'alphabet, livres de coloriage (Photo → Coloriage), papeterie kawaii, plannings et diplômes d'excellence.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
