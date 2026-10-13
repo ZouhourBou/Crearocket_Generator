@@ -20,6 +20,8 @@ import {
   LayoutGrid,
   Copy,
   Globe,
+  BookOpen,
+  Sparkles,
 } from 'lucide-react';
 
 interface WorksheetTopBarProps {
@@ -51,6 +53,8 @@ interface WorksheetTopBarProps {
   isRightPanelOpen: boolean;
   onToggleRightPanel: () => void;
   onTogglePreview: () => void;
+  onOpenTemplates?: () => void;
+  onOpenImportDocument?: () => void;
   onBackToHome?: () => void;
 }
 
@@ -83,6 +87,8 @@ export const WorksheetTopBar: React.FC<WorksheetTopBarProps> = ({
   isRightPanelOpen,
   onToggleRightPanel,
   onTogglePreview,
+  onOpenTemplates,
+  onOpenImportDocument,
   onBackToHome,
 }) => {
   const zoomOptions = [50, 75, 100, 125, 150];
@@ -151,6 +157,34 @@ export const WorksheetTopBar: React.FC<WorksheetTopBarProps> = ({
             title="Cliquez pour renommer le document"
           />
         </div>
+
+        {/* Phase 4: Button to open Reference Exam Templates */}
+        {onOpenTemplates && (
+          <button
+            type="button"
+            onClick={onOpenTemplates}
+            title="Gabarits de devoirs complets (3 devoirs de référence prêts à l'emploi)"
+            className="flex items-center gap-1.5 px-2 sm:px-2.5 py-1.5 rounded-lg text-xs font-bold bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300/80 shadow-2xs transition-all cursor-pointer shrink-0"
+          >
+            <BookOpen className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+            <span className="hidden sm:inline">Gabarits Réels (3)</span>
+            <span className="sm:hidden">Gabarits</span>
+          </button>
+        )}
+
+        {/* Phase 5: Button to open Intelligent Document Import & Reconstruction */}
+        {onOpenImportDocument && (
+          <button
+            type="button"
+            onClick={onOpenImportDocument}
+            title="Importer et reconstruire un devoir depuis un scan, photo ou PDF avec l'IA (Phase 5)"
+            className="flex items-center gap-1.5 px-2 sm:px-2.5 py-1.5 rounded-lg text-xs font-bold bg-gradient-to-r from-indigo-50 to-violet-50 hover:from-indigo-100 hover:to-violet-100 text-indigo-900 border border-indigo-200/90 shadow-2xs transition-all cursor-pointer shrink-0"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-indigo-600 shrink-0 animate-pulse" />
+            <span className="hidden sm:inline">Importer Devoir (IA)</span>
+            <span className="sm:hidden">Import IA</span>
+          </button>
+        )}
       </div>
 
       {/* Center Group: Undo/Redo, Orientation & Zoom */}

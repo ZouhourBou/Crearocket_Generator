@@ -7,20 +7,21 @@ import {
   Search,
   X,
   Heading1,
-  Heading2,
   Type,
   ListOrdered,
   PenTool,
-  ImageIcon,
   Minus,
-  Square,
   MoveVertical,
-  Calculator,
-  Grid3X3,
-  Sigma,
   CornerDownLeft,
-  Bookmark,
-  PenLine,
+  FolderKanban,
+  Compass,
+  LineChart,
+  Grid,
+  Network,
+  Tag,
+  Image as ImageIcon,
+  Shapes,
+  SlidersHorizontal,
 } from 'lucide-react';
 
 export interface BlockInsertOption {
@@ -28,7 +29,7 @@ export interface BlockInsertOption {
   type: WorksheetBlockType;
   title: string;
   description: string;
-  category: 'text' | 'exercises' | 'layout' | 'math';
+  category: 'core' | 'visual' | 'variants';
   categoryLabel: string;
   icon: React.ComponentType<{ className?: string }>;
   badgeColor: string;
@@ -36,217 +37,203 @@ export interface BlockInsertOption {
 }
 
 export const INSERT_BLOCK_OPTIONS: BlockInsertOption[] = [
-  // 1. TEXTE
+  // THE 5 CORE PHASE 2 BLOCKS
   {
     id: 'opt_title',
     type: 'title',
     title: 'Titre',
-    description: 'Grand titre principal de la fiche ou évaluation',
-    category: 'text',
-    categoryLabel: 'Texte',
+    description: 'Titre principal de la fiche, évaluation ou section',
+    category: 'core',
+    categoryLabel: 'Blocs Fondamentaux (5)',
     icon: Heading1,
     badgeColor: 'bg-indigo-50 text-indigo-700 border-indigo-200',
   },
   {
-    id: 'opt_subtitle',
-    type: 'subtitle',
-    title: 'Sous-titre',
-    description: 'Sous-titre ou thème de la leçon / exercice',
-    category: 'text',
-    categoryLabel: 'Texte',
-    icon: Heading2,
-    badgeColor: 'bg-purple-50 text-purple-700 border-purple-200',
-  },
-  {
-    id: 'opt_text',
-    type: 'text',
-    title: 'Texte & Paragraphe (نص وفقرة)',
-    description: 'Éditeur enrichi Word + Canva : texte libre, formules mathématiques (∑) et bilingue FR/AR',
-    category: 'text',
-    categoryLabel: 'Texte',
+    id: 'opt_rich_text',
+    type: 'rich_text',
+    title: 'Texte & Mathématiques (∑)',
+    description: 'Paragraphe, énoncé ou question avec formules mathématiques intégrées ($...$)',
+    category: 'core',
+    categoryLabel: 'Blocs Fondamentaux (5)',
     icon: Type,
     badgeColor: 'bg-sky-50 text-sky-700 border-sky-200',
   },
-
-  // 2. EXERCICES
   {
-    id: 'opt_qcm_exam',
-    type: 'qcm_exam',
-    title: 'QCM d’évaluation (Bilingue FR/AR)',
-    description: 'QCM à choix multiples, cases à cocher ou repères alphabétiques',
-    category: 'exercises',
-    categoryLabel: 'Exercices',
-    icon: Square,
+    id: 'opt_exercise',
+    type: 'exercise',
+    title: 'Conteneur d’Exercice',
+    description: 'Exercice structuré avec en-tête numéroté, barème et blocs enfants composables',
+    category: 'core',
+    categoryLabel: 'Blocs Fondamentaux (5)',
+    icon: FolderKanban,
     badgeColor: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-  },
-  {
-    id: 'opt_exercise_header',
-    type: 'exercise_header',
-    title: "En-tête d'exercice",
-    description: "Titre d'exercice (ex: Exercice 1) et barème indépendant",
-    category: 'exercises',
-    categoryLabel: 'Exercices',
-    icon: Bookmark,
-    badgeColor: 'bg-indigo-50 text-indigo-700 border-indigo-200',
-  },
-  {
-    id: 'opt_fill_in_blanks',
-    type: 'fill_in_blanks',
-    title: 'Compléter (souligné)',
-    description: 'Phrases à trous avec zones soulignées et formules mathématiques',
-    category: 'exercises',
-    categoryLabel: 'Exercices',
-    icon: PenLine,
-    badgeColor: 'bg-amber-50 text-amber-700 border-amber-200',
-  },
-  {
-    id: 'opt_instruction',
-    type: 'instruction',
-    title: 'Consigne',
-    description: 'Consigne encadrée pour guider les élèves',
-    category: 'exercises',
-    categoryLabel: 'Exercices',
-    icon: ListOrdered,
-    badgeColor: 'bg-amber-50 text-amber-700 border-amber-200',
   },
   {
     id: 'opt_answer_lines',
-    type: 'answer_zone',
-    title: 'Zone de réponse (Lignes)',
-    description: 'Lignes d’écriture pour la réponse des élèves',
-    category: 'exercises',
-    categoryLabel: 'Exercices',
+    type: 'answer_lines',
+    title: 'Lignes de réponse',
+    description: 'Lignes pointillées, continues, quadrillage ou cadre de réponse élève',
+    category: 'core',
+    categoryLabel: 'Blocs Fondamentaux (5)',
     icon: PenTool,
     badgeColor: 'bg-rose-50 text-rose-700 border-rose-200',
     customProps: {
-      content: { answerType: 'lines', lineCount: 4, placeholder: 'Zone réservée à la réponse de l’élève…' },
+      content: {
+        answerType: 'lines',
+        lineCount: 4,
+        lineSpacing: 32,
+        lineStyle: 'dotted',
+      },
     },
   },
   {
-    id: 'opt_answer_box',
-    type: 'answer_zone',
-    title: 'Cadre de réponse libre',
-    description: 'Encadré vierge pour dessin, schéma ou calcul',
-    category: 'exercises',
-    categoryLabel: 'Exercices',
-    icon: Square,
-    badgeColor: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+    id: 'opt_separator',
+    type: 'separator',
+    title: 'Séparateur / Espace',
+    description: 'Ligne horizontale séparatrice ou espacement vertical ajustable',
+    category: 'core',
+    categoryLabel: 'Blocs Fondamentaux (5)',
+    icon: Minus,
+    badgeColor: 'bg-slate-100 text-slate-700 border-slate-300',
     customProps: {
-      height: 120,
-      content: { answerType: 'box', placeholder: 'Cadre libre pour la réponse de l’élève…' },
+      content: {
+        separatorMode: 'line',
+        lineStyle: 'solid',
+      },
     },
   },
 
-  // 3. MISE EN PAGE
+  // PHASE 4 — VISUAL, GEOMETRY & SCIENTIFIC TOOLS
+  {
+    id: 'opt_geometry_figure',
+    type: 'geometry_figure',
+    title: 'Figure Géométrique (Vectoriel)',
+    description: 'Triangle, angle droit, segments, cercle, mesures et étiquettes mathématiques',
+    category: 'visual',
+    categoryLabel: 'Outils Visuels & Scientifiques (Phase 4)',
+    icon: Compass,
+    badgeColor: 'bg-violet-50 text-violet-700 border-violet-200',
+  },
+  {
+    id: 'opt_coordinate_system',
+    type: 'coordinate_system',
+    title: 'Repère & Graphique (O, x, y)',
+    description: 'Axes gradués, quadrillage, points A(x, y), segments et tracé de fonctions',
+    category: 'visual',
+    categoryLabel: 'Outils Visuels & Scientifiques (Phase 4)',
+    icon: LineChart,
+    badgeColor: 'bg-blue-50 text-blue-700 border-blue-200',
+  },
+  {
+    id: 'opt_number_line',
+    type: 'number_line',
+    title: 'Ligne Graduée / Axe Numérique',
+    description: 'Axe avec graduations régulières, subdivisions, points A, B et mode complétion élève',
+    category: 'visual',
+    categoryLabel: 'Outils Visuels & Scientifiques (Phase 4 & 5)',
+    icon: SlidersHorizontal,
+    badgeColor: 'bg-emerald-50 text-emerald-700 border-emerald-200',
+  },
+  {
+    id: 'opt_construction_area',
+    type: 'construction_area',
+    title: 'Espace de Construction (Élève)',
+    description: 'Zone réservée au tracé de l’élève : papier blanc, quadrillé, millimétré ou pointé',
+    category: 'visual',
+    categoryLabel: 'Outils Visuels & Scientifiques (Phase 4)',
+    icon: Grid,
+    badgeColor: 'bg-teal-50 text-teal-700 border-teal-200',
+  },
+  {
+    id: 'opt_image_annotation',
+    type: 'image_annotation',
+    title: 'Schéma / Image Annotée',
+    description: 'Image avec marqueurs (1, 2, 3) pour légender ou faire compléter par l’élève',
+    category: 'visual',
+    categoryLabel: 'Outils Visuels & Scientifiques (Phase 4)',
+    icon: Tag,
+    badgeColor: 'bg-fuchsia-50 text-fuchsia-700 border-fuchsia-200',
+  },
+  {
+    id: 'opt_diagram',
+    type: 'diagram',
+    title: 'Schéma & Diagramme',
+    description: 'Enchaînement de boîtes reliées par des flèches (étapes, démonstrations)',
+    category: 'visual',
+    categoryLabel: 'Outils Visuels & Scientifiques (Phase 4)',
+    icon: Network,
+    badgeColor: 'bg-cyan-50 text-cyan-700 border-cyan-200',
+  },
   {
     id: 'opt_image',
     type: 'image',
-    title: 'Image / Schéma',
-    description: 'Illustration, schéma ou photo pédagogique',
-    category: 'layout',
-    categoryLabel: 'Mise en page',
+    title: 'Image & Illustration',
+    description: 'Photo, schéma ou illustration PNG/JPEG/SVG avec légende mathématique',
+    category: 'visual',
+    categoryLabel: 'Outils Visuels & Scientifiques (Phase 4)',
     icon: ImageIcon,
     badgeColor: 'bg-emerald-50 text-emerald-700 border-emerald-200',
   },
   {
-    id: 'opt_line',
-    type: 'line',
-    title: 'Ligne séparatrice',
-    description: 'Séparateur horizontal simple ou décoratif',
-    category: 'layout',
-    categoryLabel: 'Mise en page',
-    icon: Minus,
-    badgeColor: 'bg-slate-100 text-slate-700 border-slate-300',
-  },
-  {
     id: 'opt_shape',
     type: 'shape',
-    title: 'Forme géométrique',
-    description: 'Cadre, rectangle ou conteneur coloré',
-    category: 'layout',
-    categoryLabel: 'Mise en page',
-    icon: Square,
-    badgeColor: 'bg-blue-50 text-blue-700 border-blue-200',
-  },
-  {
-    id: 'opt_spacer',
-    type: 'spacer',
-    title: 'Espace vertical',
-    description: 'Espace vertical ajustable pour aérer la page',
-    category: 'layout',
-    categoryLabel: 'Mise en page',
-    icon: MoveVertical,
-    badgeColor: 'bg-zinc-100 text-zinc-700 border-zinc-300',
+    title: 'Forme Vectorielle Simple',
+    description: 'Rectangle, cercle, flèche, accolade ou ligne d’accentuation',
+    category: 'visual',
+    categoryLabel: 'Outils Visuels & Scientifiques (Phase 4)',
+    icon: Shapes,
+    badgeColor: 'bg-amber-50 text-amber-700 border-amber-200',
   },
 
-  // 4. MATHÉMATIQUES
+  // QUICK VARIANTS OF THE 5 CORE BLOCKS
   {
-    id: 'opt_math_grid',
-    type: 'answer_zone',
-    title: 'Quadrillage de calcul',
-    description: 'Grille à carreaux pour poser les opérations ou géométrie',
-    category: 'math',
-    categoryLabel: 'Mathématiques',
-    icon: Grid3X3,
-    badgeColor: 'bg-violet-50 text-violet-700 border-violet-200',
-    customProps: {
-      height: 130,
-      content: { answerType: 'grid', placeholder: 'Carreaux de calcul et géométrie…' },
-    },
-  },
-  {
-    id: 'opt_math_calc',
-    type: 'text',
-    title: 'Calcul & Opérations',
-    description: 'Série de calculs et égalités arithmétiques',
-    category: 'math',
-    categoryLabel: 'Mathématiques',
-    icon: Calculator,
-    badgeColor: 'bg-teal-50 text-teal-700 border-teal-200',
-    customProps: {
-      height: 70,
-      content: {
-        text: 'a) 45 + 28 = .....        b) 120 - 45 = .....\nc) 12 × 4 = .....         d) 80 ÷ 4 = .....',
-      },
-      styles: {
-        fontSize: 15,
-        fontFamily: 'monospace',
-        fontWeight: 'bold',
-      },
-    },
-  },
-  {
-    id: 'opt_math_problem',
-    type: 'text',
-    title: 'Problème de maths',
-    description: 'Énoncé structuré avec données chiffrées et question',
-    category: 'math',
-    categoryLabel: 'Mathématiques',
-    icon: Sigma,
+    id: 'opt_instruction',
+    type: 'rich_text',
+    title: 'Consigne encadrée (Variante Texte)',
+    description: 'Bloc Texte pré-formaté avec badge « Consigne : » et encadré',
+    category: 'variants',
+    categoryLabel: 'Variantes rapides',
+    icon: ListOrdered,
     badgeColor: 'bg-amber-50 text-amber-700 border-amber-200',
     customProps: {
-      height: 80,
       content: {
-        text: 'Problème : Dans une classe de 25 élèves, 14 portent des lunettes.\nCombien d’élèves ne portent pas de lunettes ?',
+        variant: 'instruction',
+        label: 'Consigne :',
+        text: 'Lisez attentivement l’énoncé avant de répondre aux questions.',
       },
       styles: {
-        fontSize: 14,
-        padding: 10,
-        backgroundColor: '#fffbeb',
-        borderColor: '#fde68a',
+        backgroundColor: '#f8fafc',
+        borderColor: '#cbd5e1',
         borderWidth: 1,
         borderStyle: 'solid',
         borderRadius: 8,
+        padding: 10,
+      },
+    },
+  },
+  {
+    id: 'opt_spacer',
+    type: 'separator',
+    title: 'Espace vide vertical (Variante Séparateur)',
+    description: 'Séparateur en mode espace vertical ajustable (32px)',
+    category: 'variants',
+    categoryLabel: 'Variantes rapides',
+    icon: MoveVertical,
+    badgeColor: 'bg-zinc-100 text-zinc-700 border-zinc-300',
+    customProps: {
+      height: 32,
+      content: {
+        separatorMode: 'space',
+        spacerHeight: 32,
       },
     },
   },
 ];
 
 const CATEGORIES = [
-  { key: 'text', label: 'Texte' },
-  { key: 'exercises', label: 'Exercices' },
-  { key: 'layout', label: 'Mise en page' },
-  { key: 'math', label: 'Mathématiques' },
+  { key: 'core', label: 'Blocs Fondamentaux (5)' },
+  { key: 'visual', label: 'Visuel, Géométrie & Sciences (Phase 4)' },
+  { key: 'variants', label: 'Variantes rapides' },
 ] as const;
 
 interface BlockInsertPopoverProps {
@@ -269,7 +256,6 @@ export const BlockInsertPopover: React.FC<BlockInsertPopoverProps> = ({
   const searchInputRef = useRef<HTMLInputElement>(null);
   const popoverRef = useRef<HTMLDivElement>(null);
 
-  // Focus search input when popover opens & reset state
   useEffect(() => {
     if (isOpen) {
       setSearchQuery('');
@@ -281,7 +267,6 @@ export const BlockInsertPopover: React.FC<BlockInsertPopoverProps> = ({
     }
   }, [isOpen]);
 
-  // Handle Escape key to close
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isOpen) {
@@ -294,7 +279,6 @@ export const BlockInsertPopover: React.FC<BlockInsertPopoverProps> = ({
 
   if (!isOpen) return null;
 
-  // Filter options based on query (by title, description, or category label)
   const q = searchQuery.trim().toLowerCase();
   const filteredOptions = INSERT_BLOCK_OPTIONS.filter((opt) => {
     if (!q) return true;
@@ -305,9 +289,8 @@ export const BlockInsertPopover: React.FC<BlockInsertPopoverProps> = ({
     );
   });
 
-  // Calculate intelligent position
-  const POPOVER_WIDTH = 580;
-  const POPOVER_HEIGHT = 440;
+  const POPOVER_WIDTH = 560;
+  const POPOVER_HEIGHT = 410;
 
   let computedStyle: React.CSSProperties = {
     width: `${POPOVER_WIDTH}px`,
@@ -315,18 +298,14 @@ export const BlockInsertPopover: React.FC<BlockInsertPopoverProps> = ({
   };
 
   if (triggerRect && positionHint === 'side') {
-    // Open beside the trigger (Shopify-style sidebar popover)
     let left = triggerRect.right + 12;
-    // Check if overflowing right
     if (left + POPOVER_WIDTH > window.innerWidth - 16) {
       left = Math.max(16, triggerRect.left - POPOVER_WIDTH - 12);
     }
-    // Check if still overflowing
     if (left < 16) {
       left = Math.max(16, (window.innerWidth - POPOVER_WIDTH) / 2);
     }
 
-    // Vertical alignment: center around trigger or shift up if near bottom
     let top = triggerRect.top - 40;
     if (top + POPOVER_HEIGHT > window.innerHeight - 20) {
       top = Math.max(20, window.innerHeight - POPOVER_HEIGHT - 20);
@@ -343,7 +322,6 @@ export const BlockInsertPopover: React.FC<BlockInsertPopoverProps> = ({
       zIndex: 60,
     };
   } else if (triggerRect && positionHint === 'center') {
-    // Floating under or near trigger in canvas
     let left = Math.max(16, Math.min(window.innerWidth - POPOVER_WIDTH - 16, triggerRect.left));
     let top = triggerRect.bottom + 10;
     if (top + POPOVER_HEIGHT > window.innerHeight - 20) {
@@ -358,7 +336,6 @@ export const BlockInsertPopover: React.FC<BlockInsertPopoverProps> = ({
       zIndex: 60,
     };
   } else {
-    // Default centered on screen
     computedStyle = {
       ...computedStyle,
       position: 'fixed',
@@ -369,89 +346,73 @@ export const BlockInsertPopover: React.FC<BlockInsertPopoverProps> = ({
     };
   }
 
-  // Visual Preview Renderer for the Right Column
   const renderVisualPreview = (option: BlockInsertOption) => {
     switch (option.id) {
       case 'opt_title':
         return (
           <div className="w-full flex flex-col items-center justify-center p-4 bg-white border border-slate-200/90 rounded-lg shadow-2xs">
             <h1 className="text-base font-bold text-slate-900 tracking-tight text-center leading-snug">
-              Évaluation de Mathématiques
+              Devoir de Contrôle N°1
             </h1>
             <div className="w-12 h-0.5 bg-indigo-500 rounded-full mt-2" />
           </div>
         );
 
-      case 'opt_subtitle':
+      case 'opt_rich_text':
         return (
-          <div className="w-full flex flex-col items-center justify-center p-3 bg-white border border-slate-200/90 rounded-lg shadow-2xs">
-            <p className="text-xs italic text-slate-500 text-center">
-              Période 1 — Nombres, calculs et résolution de problèmes
+          <div className="w-full p-3 bg-white border border-slate-200/90 rounded-lg shadow-2xs space-y-1.5">
+            <div className="text-[11px] font-semibold text-slate-800">
+              1) Calculer et simplifier :
+            </div>
+            <p className="text-[11px] text-indigo-700 font-mono bg-indigo-50/60 px-2 py-1 rounded">
+              A = 8/5 × 15/4 − 3/2
             </p>
           </div>
         );
 
-      case 'opt_text':
+      case 'opt_exercise':
         return (
-          <div className="w-full p-3 bg-white border border-slate-200/90 rounded-lg shadow-2xs space-y-1.5">
-            <div className="text-[11px] font-semibold text-slate-800">Exercice 1 : Lecture et compréhension</div>
-            <p className="text-[10px] text-slate-500 leading-relaxed">
-              Lisez attentivement le texte ci-dessous puis répondez aux questions posées sur votre feuille.
-            </p>
+          <div className="w-full p-3 bg-white border border-slate-200/90 rounded-lg shadow-2xs space-y-2">
+            <div className="flex items-center justify-between border-b-2 border-slate-900 pb-1">
+              <span className="text-xs font-bold text-slate-900">Exercice N° 1</span>
+              <span className="text-[10px] font-bold bg-slate-100 px-1.5 py-0.5 rounded border border-slate-300">
+                (4 points)
+              </span>
+            </div>
+            <div className="text-[10px] text-slate-700">1) Résoudre l’équation 2x + 5 = 13 :</div>
+            <div className="border-b-2 border-dotted border-slate-300 pb-2" />
+            <div className="border-b-2 border-dotted border-slate-300 pb-2" />
+          </div>
+        );
+
+      case 'opt_answer_lines':
+        return (
+          <div className="w-full p-3 bg-white border border-slate-200/90 rounded-lg shadow-2xs space-y-2.5">
+            <div className="border-b-2 border-dotted border-slate-400 pb-2" />
+            <div className="border-b-2 border-dotted border-slate-400 pb-2" />
+            <div className="border-b-2 border-dotted border-slate-400 pb-2" />
+          </div>
+        );
+
+      case 'opt_separator':
+        return (
+          <div className="w-full py-4 flex flex-col items-center justify-center">
+            <div className="w-full border-t-2 border-slate-400" />
+            <span className="text-[9px] text-slate-400 mt-2 font-mono">
+              Ligne séparatrice ou Espace vertical
+            </span>
           </div>
         );
 
       case 'opt_instruction':
         return (
           <div className="w-full p-2.5 bg-slate-50 border border-slate-300 rounded-lg shadow-2xs">
-            <span className="inline-block px-1.5 py-0.5 bg-amber-100 text-amber-800 text-[10px] font-bold rounded mb-1">
+            <span className="inline-block px-1.5 py-0.5 bg-indigo-100 text-indigo-800 text-[10px] font-bold rounded mb-1">
               Consigne :
             </span>
             <p className="text-[10px] text-slate-700 leading-normal">
-              Entourez la bonne réponse et justifiez votre choix par un calcul.
+              Détaillez toutes les étapes de vos calculs.
             </p>
-          </div>
-        );
-
-      case 'opt_answer_lines':
-        return (
-          <div className="w-full p-3 bg-white border border-slate-200/90 rounded-lg shadow-2xs space-y-2">
-            <div className="text-[10px] font-medium text-slate-400 italic">Réponse de l’élève :</div>
-            <div className="border-b border-slate-300 border-dashed pb-1.5" />
-            <div className="border-b border-slate-300 border-dashed pb-1.5" />
-            <div className="border-b border-slate-300 border-dashed pb-1.5" />
-          </div>
-        );
-
-      case 'opt_answer_box':
-        return (
-          <div className="w-full h-24 p-3 bg-white border-2 border-dashed border-slate-300 rounded-lg flex items-center justify-center text-center">
-            <span className="text-[10px] text-slate-400 italic">
-              Zone libre réservée pour le schéma, dessin ou calcul
-            </span>
-          </div>
-        );
-
-      case 'opt_image':
-        return (
-          <div className="w-full h-24 bg-slate-100 border border-slate-200 rounded-lg overflow-hidden flex flex-col items-center justify-center text-slate-400">
-            <ImageIcon className="w-7 h-7 mb-1 text-slate-300" />
-            <span className="text-[10px] text-slate-500 font-medium">Illustration pédagogique</span>
-          </div>
-        );
-
-      case 'opt_line':
-        return (
-          <div className="w-full py-4 flex flex-col items-center justify-center">
-            <div className="w-full border-t-2 border-slate-400" />
-            <span className="text-[9px] text-slate-400 mt-2 font-mono">Séparateur 2px</span>
-          </div>
-        );
-
-      case 'opt_shape':
-        return (
-          <div className="w-full h-20 bg-blue-50/80 border-2 border-blue-400 rounded-xl flex items-center justify-center text-blue-700 text-[10px] font-semibold">
-            Cadre de mise en valeur
           </div>
         );
 
@@ -459,65 +420,28 @@ export const BlockInsertPopover: React.FC<BlockInsertPopoverProps> = ({
         return (
           <div className="w-full h-16 border border-dashed border-slate-300 rounded-lg bg-slate-50 flex items-center justify-center text-slate-400 gap-1.5 text-[10px]">
             <MoveVertical className="w-3.5 h-3.5 text-slate-400" />
-            <span>Espace vierge (40px)</span>
-          </div>
-        );
-
-      case 'opt_math_grid':
-        return (
-          <div className="w-full h-24 bg-white border border-slate-300 rounded-lg p-1.5 flex flex-col justify-between overflow-hidden shadow-2xs">
-            <div className="grid grid-cols-6 gap-1 w-full h-full opacity-60">
-              {Array.from({ length: 18 }).map((_, i) => (
-                <div key={i} className="border border-slate-200 rounded-xs bg-slate-50/40" />
-              ))}
-            </div>
-          </div>
-        );
-
-      case 'opt_math_calc':
-        return (
-          <div className="w-full p-2.5 bg-slate-900 text-emerald-400 font-mono text-[10px] rounded-lg shadow-2xs space-y-1">
-            <div>45 + 28 = [    ]</div>
-            <div>120 - 45 = [    ]</div>
-            <div>12 × 4  = [    ]</div>
-          </div>
-        );
-
-      case 'opt_math_problem':
-        return (
-          <div className="w-full p-2.5 bg-amber-50/90 border border-amber-200 rounded-lg shadow-2xs">
-            <span className="text-[10px] font-bold text-amber-900 block mb-0.5">Problème guidé</span>
-            <p className="text-[10px] text-amber-950/80 leading-relaxed">
-              Dans un panier, il y a 12 pommes et 8 poires. Combien y a-t-il de fruits au total ?
-            </p>
+            <span>Espace vertical (32px)</span>
           </div>
         );
 
       default:
-        return (
-          <div className="w-full p-3 bg-white border border-slate-200 rounded-lg text-xs text-slate-500">
-            Aperçu standard du bloc
-          </div>
-        );
+        return null;
     }
   };
 
   return (
     <>
-      {/* Click-outside backdrop */}
       <div
         className="fixed inset-0 z-50 bg-slate-900/15 backdrop-blur-[0.5px] transition-opacity animate-in fade-in duration-100"
         onClick={onClose}
       />
 
-      {/* Two-column Shopify-style Popover Panel */}
       <div
         ref={popoverRef}
         style={computedStyle}
         className="bg-white border border-slate-200/90 rounded-2xl shadow-2xl overflow-hidden flex flex-col animate-in fade-in zoom-in-95 duration-150 select-none"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Top Header with Search Bar */}
         <div className="p-3 border-b border-slate-200/80 bg-slate-50/50 flex items-center justify-between gap-2 shrink-0">
           <div className="relative flex-1">
             <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -526,7 +450,7 @@ export const BlockInsertPopover: React.FC<BlockInsertPopoverProps> = ({
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Rechercher un bloc ou une catégorie..."
+              placeholder="Rechercher un bloc (Titre, Texte, Exercice, Lignes, Séparateur)..."
               className="w-full pl-9 pr-8 py-2 bg-white text-xs text-slate-800 placeholder-slate-400 border border-slate-200 rounded-xl outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/15 transition-all shadow-2xs font-medium"
             />
             {searchQuery && (
@@ -550,93 +474,68 @@ export const BlockInsertPopover: React.FC<BlockInsertPopoverProps> = ({
           </button>
         </div>
 
-        {/* 2-Columns Body: Left Selection List + Right Visual Preview */}
         <div className="flex-1 flex min-h-0 divide-x divide-slate-100 overflow-hidden">
-          {/* Colonne gauche — Sélection du bloc (scrollable) */}
-          <div className="w-[330px] sm:w-[340px] flex flex-col min-h-0 overflow-y-auto p-2.5 space-y-3 custom-scrollbar">
-            {filteredOptions.length === 0 ? (
-              <div className="py-12 px-4 text-center">
-                <Search className="w-8 h-8 text-slate-300 mx-auto mb-2" />
-                <p className="text-xs font-semibold text-slate-700">Aucun bloc trouvé</p>
-                <p className="text-[11px] text-slate-400 mt-1">
-                  Essayez un autre mot-clé (ex: titre, consigne, image, calcul...)
-                </p>
-              </div>
-            ) : (
-              CATEGORIES.map((cat) => {
-                const catOptions = filteredOptions.filter((o) => o.category === cat.key);
-                if (catOptions.length === 0) return null;
+          <div className="w-[330px] flex flex-col min-h-0 overflow-y-auto p-2.5 space-y-3 custom-scrollbar">
+            {CATEGORIES.map((cat) => {
+              const catOptions = filteredOptions.filter((o) => o.category === cat.key);
+              if (catOptions.length === 0) return null;
 
-                return (
-                  <div key={cat.key} className="space-y-1">
-                    {/* Category Section Header */}
-                    <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-2 py-0.5 flex items-center justify-between">
-                      <span>{cat.label}</span>
-                      <span className="text-[9px] font-semibold text-slate-400/80 bg-slate-100 px-1.5 py-0.2 rounded-full">
-                        {catOptions.length}
-                      </span>
-                    </div>
+              return (
+                <div key={cat.key} className="space-y-1">
+                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider px-2 py-0.5 flex items-center justify-between">
+                    <span>{cat.label}</span>
+                  </div>
 
-                    {/* Category Items */}
-                    <div className="space-y-0.5">
-                      {catOptions.map((opt) => {
-                        const Icon = opt.icon;
-                        const isHovered = hoveredOption.id === opt.id;
+                  <div className="space-y-0.5">
+                    {catOptions.map((opt) => {
+                      const Icon = opt.icon;
+                      const isHovered = hoveredOption.id === opt.id;
 
-                        return (
+                      return (
+                        <div
+                          key={opt.id}
+                          onMouseEnter={() => setHoveredOption(opt)}
+                          onClick={() => {
+                            onSelectOption(opt);
+                            onClose();
+                          }}
+                          className={`group flex items-center gap-2.5 p-2 rounded-xl border transition-all cursor-pointer select-none ${
+                            isHovered
+                              ? 'bg-slate-100/90 border-indigo-200/80 shadow-2xs text-slate-900'
+                              : 'bg-white hover:bg-slate-50/90 border-transparent text-slate-700'
+                          }`}
+                        >
                           <div
-                            key={opt.id}
-                            onMouseEnter={() => setHoveredOption(opt)}
-                            onClick={() => {
-                              onSelectOption(opt);
-                              onClose();
-                            }}
-                            className={`group flex items-center gap-2.5 p-2 rounded-xl border transition-all cursor-pointer select-none ${
-                              isHovered
-                                ? 'bg-slate-100/90 border-indigo-200/80 shadow-2xs text-slate-900'
-                                : 'bg-white hover:bg-slate-50/90 border-transparent text-slate-700'
-                            }`}
+                            className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 border ${opt.badgeColor}`}
                           >
-                            <div
-                              className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 border ${opt.badgeColor} transition-transform ${
-                                isHovered ? 'scale-105 shadow-2xs' : ''
-                              }`}
-                            >
-                              <Icon className="w-3.5 h-3.5" />
-                            </div>
+                            <Icon className="w-3.5 h-3.5" />
+                          </div>
 
-                            <div className="min-w-0 flex-1">
-                              <div className="text-xs font-bold text-slate-800 group-hover:text-indigo-950 truncate leading-tight">
-                                {opt.title}
-                              </div>
-                              <div className="text-[10px] text-slate-400 group-hover:text-slate-500 truncate leading-tight mt-0.5">
-                                {opt.description}
-                              </div>
+                          <div className="min-w-0 flex-1">
+                            <div className="text-xs font-bold text-slate-800 group-hover:text-indigo-950 truncate leading-tight">
+                              {opt.title}
+                            </div>
+                            <div className="text-[10px] text-slate-400 group-hover:text-slate-500 truncate leading-tight mt-0.5">
+                              {opt.description}
                             </div>
                           </div>
-                        );
-                      })}
-                    </div>
+                        </div>
+                      );
+                    })}
                   </div>
-                );
-              })
-            )}
+                </div>
+              );
+            })}
           </div>
 
-          {/* Colonne droite — Aperçu visuel du bloc (fixe, sans scroll séparé) */}
           <div className="flex-1 bg-slate-50/70 p-4 flex flex-col justify-between overflow-hidden">
             <div>
-              {/* Header of Preview */}
               <div className="flex items-center justify-between gap-2 mb-3">
                 <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                   Aperçu visuel
                 </span>
-                <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold bg-indigo-50 text-indigo-700 border border-indigo-200/60">
-                  {hoveredOption.categoryLabel}
-                </span>
               </div>
 
-              {/* Title & Description of Current Selection */}
               <div className="mb-3">
                 <h3 className="text-xs font-bold text-slate-800 leading-tight">
                   {hoveredOption.title}
@@ -646,13 +545,11 @@ export const BlockInsertPopover: React.FC<BlockInsertPopoverProps> = ({
                 </p>
               </div>
 
-              {/* Realistic Simulated Block Preview (A4 Miniature Canvas) */}
-              <div className="p-3 bg-white/80 rounded-xl border border-slate-200/90 shadow-xs flex items-center justify-center min-h-[160px]">
+              <div className="p-3 bg-white/80 rounded-xl border border-slate-200/90 shadow-xs flex items-center justify-center min-h-[150px]">
                 {renderVisualPreview(hoveredOption)}
               </div>
             </div>
 
-            {/* Bottom Callout & Quick Insertion Hint */}
             <div className="pt-3 border-t border-slate-200/70 flex items-center justify-between text-[11px] text-slate-500">
               <span className="flex items-center gap-1.5 font-medium">
                 <CornerDownLeft className="w-3.5 h-3.5 text-indigo-500" />

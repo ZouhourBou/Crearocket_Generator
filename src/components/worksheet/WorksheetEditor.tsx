@@ -14,6 +14,7 @@ import {
 import {
   createInitialDocument,
   createDefaultBlock,
+  loadReferenceExam,
 } from '../../data/defaultWorksheet';
 import {
   layoutVerticalFlow,
@@ -30,6 +31,8 @@ import { WorksheetCanvas } from './WorksheetCanvas';
 import { WorksheetRightPanel } from './WorksheetRightPanel';
 import { WorksheetPreviewModal } from './WorksheetPreviewModal';
 import { WorksheetGridView } from './WorksheetGridView';
+import { ExamTemplatesModal } from './ExamTemplatesModal';
+import { DocumentImportModal } from './DocumentImportModal';
 import { DocumentLanguage } from '../../types/worksheet';
 
 interface WorksheetEditorProps {
@@ -85,6 +88,61 @@ export const WorksheetEditor: React.FC<WorksheetEditorProps> = ({ onBackToHome }
 
   // Print-ready Fullscreen Preview Modal State (Point 3)
   const [isPreviewOpen, setIsPreviewOpen] = useState<boolean>(false);
+
+  // Reference Exam Templates Modal (Phase 4)
+  const [isTemplatesModalOpen, setIsTemplatesModalOpen] = useState<boolean>(false);
+
+  // Intelligent Document Import & Reconstruction Modal (Phase 5)
+  const [isImportModalOpen, setIsImportModalOpen] = useState<boolean>(false);
+
+  const handleSelectReferenceTemplate = (templateId: string) => {
+    const newDoc = loadReferenceExam(templateId);
+    pushState(newDoc);
+    setCurrentPageIndex(0);
+    setSelectedBlockId(null);
+  };
+
+  const handleImportDocument = (
+    importedDoc: WorksheetDocument,
+    mode: 'replace' | 'append' | 'insert'
+  ) => {
+    if (mode === 'replace') {
+      pushState(importedDoc);
+      setCurrentPageIndex(0);
+      setSelectedBlockId(null);
+    } else if (mode === 'append') {
+      const newPages = [
+        ...doc.pages,
+        ...importedDoc.pages.map((p, idx) => ({
+          ...p,
+          id: `page_${Date.now()}_${idx}`,
+          pageNumber: doc.pages.length + idx + 1,
+        })),
+      ];
+      const newDoc: WorksheetDocument = {
+        ...doc,
+        pages: newPages,
+      };
+      pushState(newDoc);
+      setCurrentPageIndex(doc.pages.length);
+      setSelectedBlockId(null);
+    } else {
+      // 'insert' into current page
+      const importedBlocks = importedDoc.pages[0]?.blocks || [];
+      const updatedPages = doc.pages.map((p, idx) => {
+        if (idx !== currentPageIndex) return p;
+        return {
+          ...p,
+          blocks: [...p.blocks, ...importedBlocks],
+        };
+      });
+      const newDoc: WorksheetDocument = {
+        ...doc,
+        pages: updatedPages,
+      };
+      pushState(newDoc);
+    }
+  };
 
   // Responsive: gracefully reduce column widths on window resize to guarantee central canvas room
   useEffect(() => {
@@ -988,6 +1046,8 @@ export const WorksheetEditor: React.FC<WorksheetEditorProps> = ({ onBackToHome }
         isRightPanelOpen={isRightPanelOpen}
         onToggleRightPanel={() => setIsRightPanelOpen(!isRightPanelOpen)}
         onTogglePreview={() => setIsPreviewOpen(true)}
+        onOpenTemplates={() => setIsTemplatesModalOpen(true)}
+        onOpenImportDocument={() => setIsImportModalOpen(true)}
         onBackToHome={onBackToHome}
       />
 
@@ -1079,6 +1139,20 @@ export const WorksheetEditor: React.FC<WorksheetEditorProps> = ({ onBackToHome }
         onClose={() => setIsPreviewOpen(false)}
         document={doc}
         initialPageIndex={currentPageIndex}
+      />
+
+      {/* 4. REFERENCE EXAM TEMPLATES MODAL (Phase 4) */}
+      <ExamTemplatesModal
+        isOpen={isTemplatesModalOpen}
+        onClose={() => setIsTemplatesModalOpen(false)}
+        onSelectTemplate={handleSelectReferenceTemplate}
+      />
+
+      {/* 5. INTELLIGENT DOCUMENT IMPORT & RECONSTRUCTION MODAL (Phase 5) */}
+      <DocumentImportModal
+        isOpen={isImportModalOpen}
+        onClose={() => setIsImportModalOpen(false)}
+        onApplyDocument={handleImportDocument}
       />
     </div>
   );

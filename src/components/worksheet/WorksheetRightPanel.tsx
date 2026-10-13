@@ -44,6 +44,14 @@ import {
   ListOrdered,
   Ban,
   Sigma,
+  Minus,
+  PenTool,
+  Compass,
+  LineChart,
+  Grid,
+  Network,
+  Tag,
+  Shapes,
 } from 'lucide-react';
 import { TITLE_NUMBERING_OPTIONS, TitleNumberingModel } from '../../utils/titleNumbering';
 import { MathSymbolLibraryModal } from './blocks/MathSymbolLibraryModal';
@@ -136,8 +144,38 @@ export const WorksheetRightPanel: React.FC<WorksheetRightPanelProps> = ({
             <h2 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
               {selectedBlock ? 'Propriétés du bloc' : 'Propriétés du document'}
             </h2>
-            <p className="text-[11px] text-slate-400 truncate max-w-[170px]">
-              {selectedBlock ? selectedBlock.type.toUpperCase() : 'Format A4'}
+            <p className="text-[11px] text-slate-500 font-medium truncate max-w-[170px]">
+              {selectedBlock
+                ? selectedBlock.type === 'title'
+                  ? 'Titre'
+                  : selectedBlock.type === 'rich_text'
+                  ? 'Texte & Maths'
+                  : selectedBlock.type === 'exercise'
+                  ? 'Exercice'
+                  : selectedBlock.type === 'answer_lines'
+                  ? 'Lignes de réponse'
+                  : selectedBlock.type === 'separator'
+                  ? 'Séparateur'
+                  : selectedBlock.type === 'geometry_figure'
+                  ? 'Figure Géométrique'
+                  : selectedBlock.type === 'coordinate_system'
+                  ? 'Repère & Graphique'
+                  : selectedBlock.type === 'construction_area'
+                  ? 'Espace de Construction'
+                  : selectedBlock.type === 'diagram'
+                  ? 'Schéma & Diagramme'
+                  : selectedBlock.type === 'image_annotation'
+                  ? 'Schéma Annoté'
+                  : selectedBlock.type === 'image'
+                  ? 'Image & Illustration'
+                  : selectedBlock.type === 'shape'
+                  ? 'Forme Simple'
+                  : selectedBlock.type === 'exercise_header'
+                  ? 'En-tête d’exercice'
+                  : selectedBlock.type === 'answer_zone'
+                  ? 'Zone de réponse'
+                  : selectedBlock.type.toUpperCase()
+                : 'Format A4'}
             </p>
           </div>
         </div>
@@ -1022,8 +1060,8 @@ export const WorksheetRightPanel: React.FC<WorksheetRightPanelProps> = ({
               </div>
             )}
 
-            {/* 2b. Typographie & Texte pour les autres blocs texte (subtitle, instruction, text) */}
-            {['subtitle', 'instruction', 'text'].includes(selectedBlock.type) && (
+            {/* 2b. Typographie & Texte pour les autres blocs texte (rich_text, subtitle, instruction, text) */}
+            {['rich_text', 'subtitle', 'instruction', 'text'].includes(selectedBlock.type) && (
               <div className="border border-slate-200/80 rounded-xl overflow-hidden bg-slate-50/40">
                 <button
                   type="button"
@@ -1305,7 +1343,7 @@ export const WorksheetRightPanel: React.FC<WorksheetRightPanelProps> = ({
             )}
 
             {/* Texte & Paragraphe (Word + Canva & Math Editor) */}
-            {selectedBlock.type === 'text' && (
+            {(selectedBlock.type === 'text' || selectedBlock.type === 'rich_text') && (
               <div className="border border-indigo-200 rounded-xl overflow-hidden bg-indigo-50/20">
                 <button
                   type="button"
@@ -2910,18 +2948,18 @@ export const WorksheetRightPanel: React.FC<WorksheetRightPanelProps> = ({
               );
             })()}
 
-            {/* Exercise Header Specific Properties */}
-            {selectedBlock.type === 'exercise_header' && (
-              <div className="border border-slate-200/80 rounded-xl overflow-hidden bg-slate-50/40">
+            {/* Exercise Container & Header Specific Properties (Phase 2 core block) */}
+            {(selectedBlock.type === 'exercise' || selectedBlock.type === 'exercise_header') && (
+              <div className="border border-emerald-200/80 rounded-xl overflow-hidden bg-emerald-50/20 shadow-xs">
                 <button
                   type="button"
                   onClick={() => toggleSection('specific')}
-                  className="w-full p-2.5 flex items-center justify-between font-bold text-slate-700 hover:bg-slate-100/70 transition-colors cursor-pointer"
+                  className="w-full p-2.5 flex items-center justify-between font-bold text-slate-800 hover:bg-emerald-50/50 transition-colors cursor-pointer"
                 >
-                  <span className="flex items-center gap-1.5">
-                    <Bookmark className="w-3.5 h-3.5 text-indigo-600" />
-                    <span>Propriétés de l'En-tête</span>
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-emerald-600" />
+                    <span>Propriétés de l'Exercice</span>
+                  </div>
                   <ChevronDown
                     className={`w-3.5 h-3.5 transition-transform ${
                       openSections.specific ? '' : '-rotate-90'
@@ -2930,78 +2968,147 @@ export const WorksheetRightPanel: React.FC<WorksheetRightPanelProps> = ({
                 </button>
 
                 {openSections.specific && (
-                  <div className="p-3 bg-white border-t border-slate-200/70 space-y-3 text-xs">
-                    {/* 1. Titre de l'exercice */}
+                  <div className="p-3 bg-white border-t border-emerald-100 space-y-3.5 text-xs">
+                    {/* 1. Format de numérotation */}
                     <div>
-                      <label className="text-[10px] font-bold text-slate-400 block uppercase mb-1">
-                        Titre de l'exercice
-                      </label>
-                      <input
-                        type="text"
-                        value={selectedBlock.content.exerciseTitle || ''}
-                        onChange={(e) =>
-                          onUpdateBlockContent({ exerciseTitle: e.target.value })
-                        }
-                        placeholder="Ex: Exercice 1 / تمرين 1"
-                        className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 font-bold outline-none focus:border-indigo-500 focus:bg-white"
-                      />
-                    </div>
-
-                    {/* 2. Barème */}
-                    <div>
-                      <label className="text-[10px] font-bold text-slate-400 block uppercase mb-1">
-                        Barème (Points)
-                      </label>
-                      <input
-                        type="text"
-                        value={selectedBlock.content.points || ''}
-                        onChange={(e) =>
-                          onUpdateBlockContent({ points: e.target.value })
-                        }
-                        placeholder="Ex: 5 points / 5 نقاط"
-                        className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 font-semibold outline-none focus:border-indigo-500 focus:bg-white"
-                      />
-                    </div>
-
-                    {/* 3. Position du barème */}
-                    <div>
-                      <label className="text-[10px] font-bold text-slate-400 block uppercase mb-1">
-                        Position du barème
+                      <label className="text-[10px] font-bold text-slate-500 block uppercase mb-1 flex items-center justify-between">
+                        <span>Format de numérotation</span>
+                        <span className="text-[9px] text-slate-400 font-normal">5 modèles</span>
                       </label>
                       <div className="grid grid-cols-3 gap-1">
                         {[
-                          { id: 'right', label: 'À droite' },
-                          { id: 'left', label: 'À gauche' },
-                          { id: 'below', label: 'En dessous' },
-                        ].map((pos) => (
-                          <button
-                            key={pos.id}
-                            type="button"
-                            onClick={() =>
-                              onUpdateBlockContent({ pointsPosition: pos.id as any })
-                            }
-                            className={`py-1.5 px-1 rounded-lg border text-center font-bold text-[11px] transition-all cursor-pointer ${
-                              (selectedBlock.content.pointsPosition || 'right') === pos.id
-                                ? 'bg-indigo-50 border-indigo-400 text-indigo-700 shadow-2xs'
-                                : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
-                            }`}
-                          >
-                            {pos.label}
-                          </button>
-                        ))}
+                          { id: 'exercice_n', label: 'Exercice N°', preview: 'Ex. N°1' },
+                          { id: 'exercice', label: 'Exercice X', preview: 'Ex. 1' },
+                          { id: 'roman', label: 'Romain', preview: 'I.' },
+                          { id: 'numeric', label: 'Numérique', preview: '1.' },
+                          { id: 'none', label: 'Personnalisé', preview: 'Sans n°' },
+                        ].map((m) => {
+                          const isCurrent =
+                            (selectedBlock.content.numberingStyle || 'exercice_n') === m.id;
+                          return (
+                            <button
+                              key={m.id}
+                              type="button"
+                              onClick={() =>
+                                onUpdateBlockContent({ numberingStyle: m.id as any })
+                              }
+                              className={`py-1.5 px-1 rounded-lg border text-center transition-all cursor-pointer ${
+                                isCurrent
+                                  ? 'bg-emerald-50 border-emerald-500 text-emerald-800 font-bold shadow-2xs'
+                                  : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                              }`}
+                            >
+                              <div className="font-bold text-[11px]">{m.preview}</div>
+                              <div className="text-[8px] text-slate-400">{m.label}</div>
+                            </button>
+                          );
+                        })}
                       </div>
+                    </div>
+
+                    {/* 2. Numéro & Titre de l'exercice */}
+                    <div className="grid grid-cols-3 gap-2">
+                      <div className="col-span-1">
+                        <label className="text-[10px] font-bold text-slate-500 block uppercase mb-1">
+                          Numéro
+                        </label>
+                        <input
+                          type="number"
+                          min="1"
+                          max="99"
+                          value={selectedBlock.content.exerciseNumber || 1}
+                          onChange={(e) =>
+                            onUpdateBlockContent({ exerciseNumber: Math.max(1, Number(e.target.value)) })
+                          }
+                          className="w-full px-2 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 font-bold outline-none focus:bg-white focus:border-emerald-500 text-center"
+                        />
+                      </div>
+                      <div className="col-span-2">
+                        <label className="text-[10px] font-bold text-slate-500 block uppercase mb-1">
+                          Titre (optionnel)
+                        </label>
+                        <input
+                          type="text"
+                          value={selectedBlock.content.exerciseTitle || ''}
+                          onChange={(e) =>
+                            onUpdateBlockContent({ exerciseTitle: e.target.value })
+                          }
+                          placeholder="Ex: Théorème de Thalès"
+                          className="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 font-medium outline-none focus:bg-white focus:border-emerald-500"
+                        />
+                      </div>
+                    </div>
+
+                    {/* 3. Barème (Points) */}
+                    <div className="p-2.5 rounded-xl border border-slate-200 bg-slate-50/50 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <label className="text-[10px] font-bold text-slate-700 uppercase">
+                          Afficher le barème
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            onUpdateBlockContent({
+                              showPoints: selectedBlock.content.showPoints === false ? true : false,
+                            })
+                          }
+                          className={`px-2 py-0.5 rounded text-[10px] font-bold transition-all cursor-pointer ${
+                            selectedBlock.content.showPoints !== false
+                              ? 'bg-emerald-600 text-white shadow-2xs'
+                              : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
+                          }`}
+                        >
+                          {selectedBlock.content.showPoints !== false ? 'Actif' : 'Masqué'}
+                        </button>
+                      </div>
+
+                      {selectedBlock.content.showPoints !== false && (
+                        <div className="grid grid-cols-2 gap-2 pt-1 border-t border-slate-200/60">
+                          <div>
+                            <label className="text-[9px] font-bold text-slate-400 block uppercase mb-1">
+                              Points
+                            </label>
+                            <input
+                              type="text"
+                              value={selectedBlock.content.points || ''}
+                              onChange={(e) =>
+                                onUpdateBlockContent({ points: e.target.value })
+                              }
+                              placeholder="Ex: 5 pts"
+                              className="w-full px-2 py-1 bg-white border border-slate-200 rounded-lg text-slate-800 font-bold text-xs outline-none focus:border-emerald-500"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-[9px] font-bold text-slate-400 block uppercase mb-1">
+                              Position
+                            </label>
+                            <select
+                              value={selectedBlock.content.pointsPosition || 'right'}
+                              onChange={(e) =>
+                                onUpdateBlockContent({ pointsPosition: e.target.value as any })
+                              }
+                              className="w-full px-1.5 py-1 bg-white border border-slate-200 rounded-lg text-slate-800 font-semibold text-xs cursor-pointer"
+                            >
+                              <option value="right">À droite</option>
+                              <option value="left">À gauche</option>
+                              <option value="below">En dessous</option>
+                            </select>
+                          </div>
+                        </div>
+                      )}
                     </div>
 
                     {/* 4. Style de l'en-tête */}
                     <div>
-                      <label className="text-[10px] font-bold text-slate-400 block uppercase mb-1">
-                        Mise en valeur
+                      <label className="text-[10px] font-bold text-slate-500 block uppercase mb-1">
+                        Style de l'en-tête
                       </label>
-                      <div className="grid grid-cols-3 gap-1">
+                      <div className="grid grid-cols-4 gap-1">
                         {[
                           { id: 'underlined', label: 'Souligné' },
-                          { id: 'simple', label: 'Simple' },
+                          { id: 'badge', label: 'Badge' },
                           { id: 'boxed', label: 'Encadré' },
+                          { id: 'minimal', label: 'Épuré' },
                         ].map((st) => (
                           <button
                             key={st.id}
@@ -3009,15 +3116,148 @@ export const WorksheetRightPanel: React.FC<WorksheetRightPanelProps> = ({
                             onClick={() =>
                               onUpdateBlockContent({ headerStyle: st.id as any })
                             }
-                            className={`py-1.5 px-1 rounded-lg border text-center font-bold text-[11px] transition-all cursor-pointer ${
+                            className={`py-1.5 px-1 rounded-lg border text-center font-bold text-[10px] transition-all cursor-pointer ${
                               (selectedBlock.content.headerStyle || 'underlined') === st.id
-                                ? 'bg-indigo-50 border-indigo-400 text-indigo-700 shadow-2xs'
+                                ? 'bg-emerald-50 border-emerald-500 text-emerald-800 shadow-2xs'
                                 : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
                             }`}
                           >
                             {st.label}
                           </button>
                         ))}
+                      </div>
+                    </div>
+
+                    {/* 5. Consigne introductive */}
+                    <div className="p-2.5 rounded-xl border border-slate-200 bg-slate-50/50 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <label className="text-[10px] font-bold text-slate-700 uppercase">
+                          Consigne d’introduction
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            onUpdateBlockContent({
+                              showInstruction: !selectedBlock.content.showInstruction,
+                            })
+                          }
+                          className={`px-2 py-0.5 rounded text-[10px] font-bold transition-all cursor-pointer ${
+                            selectedBlock.content.showInstruction
+                              ? 'bg-emerald-600 text-white shadow-2xs'
+                              : 'bg-slate-200 text-slate-600 hover:bg-slate-300'
+                          }`}
+                        >
+                          {selectedBlock.content.showInstruction ? 'Active' : 'Désactivée'}
+                        </button>
+                      </div>
+
+                      {selectedBlock.content.showInstruction && (
+                        <div className="pt-1 border-t border-slate-200/60">
+                          <textarea
+                            rows={2}
+                            value={selectedBlock.content.instructionText || ''}
+                            onChange={(e) =>
+                              onUpdateBlockContent({ instructionText: e.target.value })
+                            }
+                            placeholder="Saisissez la consigne générale..."
+                            className="w-full px-2 py-1 bg-white border border-slate-200 rounded-lg text-slate-800 text-xs outline-none focus:border-emerald-500 resize-none"
+                          />
+                        </div>
+                      )}
+                    </div>
+
+                    {/* 6. Composabilité LEGO — Sous-blocs de l'exercice */}
+                    <div className="p-2.5 rounded-xl border border-emerald-200 bg-emerald-50/40 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <label className="text-[10px] font-bold text-emerald-900 uppercase">
+                          Sous-blocs ({selectedBlock.children?.length || 0})
+                        </label>
+                        <span className="text-[9px] text-emerald-700 font-medium">Conteneur LEGO</span>
+                      </div>
+                      <div className="grid grid-cols-3 gap-1">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const cur = selectedBlock.children || [];
+                            const qIndex = cur.filter((c) => c.type === 'rich_text' || c.type === 'text').length + 1;
+                            const newChild: WorksheetBlock = {
+                              id: `b_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+                              type: 'rich_text',
+                              x: 0,
+                              y: 0,
+                              width: selectedBlock.width || 720,
+                              height: 44,
+                              content: {
+                                variant: 'paragraph',
+                                text: `${qIndex}) Énoncé de la question...`,
+                              },
+                              styles: {
+                                fontSize: 15,
+                                color: '#0f172a',
+                              },
+                            };
+                            onUpdateSelectedBlock({ children: [...cur, newChild] });
+                          }}
+                          className="py-1 px-1 bg-white border border-emerald-300 hover:bg-emerald-100 rounded-lg text-emerald-800 font-bold text-[10px] transition-colors cursor-pointer text-center"
+                          title="Ajouter une question rich text"
+                        >
+                          + Question
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const cur = selectedBlock.children || [];
+                            const newChild: WorksheetBlock = {
+                              id: `b_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+                              type: 'answer_lines',
+                              x: 0,
+                              y: 0,
+                              width: selectedBlock.width || 720,
+                              height: 90,
+                              content: {
+                                lineCount: 3,
+                                lineSpacing: 28,
+                                lineStyle: 'dotted',
+                                answerType: 'dots',
+                              },
+                              styles: {},
+                            };
+                            onUpdateSelectedBlock({ children: [...cur, newChild] });
+                          }}
+                          className="py-1 px-1 bg-white border border-emerald-300 hover:bg-emerald-100 rounded-lg text-emerald-800 font-bold text-[10px] transition-colors cursor-pointer text-center"
+                          title="Ajouter des lignes de réponse"
+                        >
+                          + Lignes
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const cur = selectedBlock.children || [];
+                            const newChild: WorksheetBlock = {
+                              id: `b_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+                              type: 'separator',
+                              x: 0,
+                              y: 0,
+                              width: selectedBlock.width || 720,
+                              height: 16,
+                              content: {
+                                separatorMode: 'line',
+                              },
+                              styles: {
+                                borderWidth: 1,
+                                borderStyle: 'solid',
+                                borderColor: '#cbd5e1',
+                              },
+                            };
+                            onUpdateSelectedBlock({ children: [...cur, newChild] });
+                          }}
+                          className="py-1 px-1 bg-white border border-emerald-300 hover:bg-emerald-100 rounded-lg text-emerald-800 font-bold text-[10px] transition-colors cursor-pointer text-center"
+                          title="Ajouter un séparateur"
+                        >
+                          + Séparateur
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -3175,7 +3415,7 @@ export const WorksheetRightPanel: React.FC<WorksheetRightPanelProps> = ({
               </div>
             )}
 
-            {/* 3. Image Specific Properties */}
+            {/* 3. Image Specific Properties (Phase 4) */}
             {selectedBlock.type === 'image' && (
               <div className="border border-slate-200/80 rounded-xl overflow-hidden bg-slate-50/40">
                 <button
@@ -3183,7 +3423,10 @@ export const WorksheetRightPanel: React.FC<WorksheetRightPanelProps> = ({
                   onClick={() => toggleSection('specific')}
                   className="w-full p-2.5 flex items-center justify-between font-bold text-slate-700 hover:bg-slate-100/70 transition-colors cursor-pointer"
                 >
-                  <span>Image & Fichier</span>
+                  <span className="flex items-center gap-1.5">
+                    <Upload className="w-3.5 h-3.5 text-indigo-600" />
+                    <span>Propriétés de l'Image</span>
+                  </span>
                   <ChevronDown
                     className={`w-3.5 h-3.5 transition-transform ${
                       openSections.specific ? '' : '-rotate-90'
@@ -3195,11 +3438,11 @@ export const WorksheetRightPanel: React.FC<WorksheetRightPanelProps> = ({
                   <div className="p-3 bg-white border-t border-slate-200/70 space-y-3">
                     <div>
                       <label className="text-[10px] font-bold text-slate-400 block uppercase mb-1">
-                        Importer une image
+                        Importer une image (PNG, JPEG, WebP, SVG)
                       </label>
-                      <label className="flex items-center justify-center gap-2 p-2 rounded-lg border-2 border-dashed border-indigo-200 hover:border-indigo-400 bg-indigo-50/40 text-indigo-700 font-bold text-xs cursor-pointer transition-colors">
-                        <Upload className="w-3.5 h-3.5" />
-                        <span>Choisir un fichier</span>
+                      <label className="flex items-center justify-center gap-2 p-2.5 rounded-lg border-2 border-dashed border-indigo-200 hover:border-indigo-400 bg-indigo-50/40 text-indigo-700 font-bold text-xs cursor-pointer transition-colors">
+                        <Upload className="w-4 h-4" />
+                        <span>Choisir un fichier sur l'ordinateur</span>
                         <input
                           type="file"
                           accept="image/*"
@@ -3211,14 +3454,93 @@ export const WorksheetRightPanel: React.FC<WorksheetRightPanelProps> = ({
 
                     <div>
                       <label className="text-[10px] font-bold text-slate-400 block uppercase mb-1">
-                        Ou lien URL
+                        Ou lien URL de l'image
                       </label>
                       <input
                         type="text"
                         value={selectedBlock.content.src || ''}
                         onChange={(e) => onUpdateBlockContent({ src: e.target.value })}
                         placeholder="https://..."
-                        className="w-full px-2 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800"
+                        className="w-full px-2 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 text-xs"
+                      />
+                    </div>
+
+                    {/* Width Percent Slider */}
+                    <div>
+                      <div className="flex justify-between items-center text-xs mb-1">
+                        <span className="text-[10px] font-bold text-slate-400 uppercase">
+                          Largeur affichée
+                        </span>
+                        <span className="text-slate-600 font-bold">
+                          {selectedBlock.content.imageWidthPercent ?? 80}%
+                        </span>
+                      </div>
+                      <input
+                        type="range"
+                        min="20"
+                        max="100"
+                        step="5"
+                        value={selectedBlock.content.imageWidthPercent ?? 80}
+                        onChange={(e) =>
+                          onUpdateBlockContent({ imageWidthPercent: Number(e.target.value) })
+                        }
+                        className="w-full accent-indigo-600 cursor-pointer"
+                      />
+                    </div>
+
+                    {/* Alignment */}
+                    <div>
+                      <label className="text-[10px] font-bold text-slate-400 block uppercase mb-1">
+                        Alignement
+                      </label>
+                      <div className="grid grid-cols-3 gap-1">
+                        {[
+                          { id: 'left', label: 'Gauche', icon: AlignLeft },
+                          { id: 'center', label: 'Centré', icon: AlignCenter },
+                          { id: 'right', label: 'Droite', icon: AlignRight },
+                        ].map((al) => {
+                          const IconComp = al.icon;
+                          const isCur = (selectedBlock.content.imageAlignment || 'center') === al.id;
+                          return (
+                            <button
+                              key={al.id}
+                              type="button"
+                              onClick={() => onUpdateBlockContent({ imageAlignment: al.id as any })}
+                              className={`py-1.5 px-2 rounded-lg text-xs font-semibold flex items-center justify-center gap-1 border cursor-pointer ${
+                                isCur
+                                  ? 'bg-indigo-50 border-indigo-400 text-indigo-700'
+                                  : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                              }`}
+                            >
+                              <IconComp className="w-3.5 h-3.5" />
+                              <span>{al.label}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Caption */}
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <label className="text-[10px] font-bold text-slate-400 uppercase">
+                          Légende sous l'image
+                        </label>
+                        <input
+                          type="checkbox"
+                          checked={selectedBlock.content.showCaption !== false}
+                          onChange={(e) =>
+                            onUpdateBlockContent({ showCaption: e.target.checked })
+                          }
+                          className="accent-indigo-600 cursor-pointer"
+                        />
+                      </div>
+                      <input
+                        type="text"
+                        value={selectedBlock.content.captionText ?? 'Figure 1 — Illustration'}
+                        onChange={(e) => onUpdateBlockContent({ captionText: e.target.value })}
+                        placeholder="Ex : Figure 1 — Schéma de l’expérience..."
+                        className="w-full px-2 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 text-xs"
                       />
                     </div>
                   </div>
@@ -3226,15 +3548,445 @@ export const WorksheetRightPanel: React.FC<WorksheetRightPanelProps> = ({
               </div>
             )}
 
-            {/* 4. Shape Specific Properties */}
-            {selectedBlock.type === 'shape' && (
+            {/* Geometry Figure Properties (Phase 4) */}
+            {selectedBlock.type === 'geometry_figure' && (
               <div className="border border-slate-200/80 rounded-xl overflow-hidden bg-slate-50/40">
                 <button
                   type="button"
                   onClick={() => toggleSection('specific')}
                   className="w-full p-2.5 flex items-center justify-between font-bold text-slate-700 hover:bg-slate-100/70 transition-colors cursor-pointer"
                 >
-                  <span>Forme géométrique</span>
+                  <span className="flex items-center gap-1.5">
+                    <Compass className="w-3.5 h-3.5 text-indigo-600" />
+                    <span>Propriétés de la Figure</span>
+                  </span>
+                  <ChevronDown
+                    className={`w-3.5 h-3.5 transition-transform ${
+                      openSections.specific ? '' : '-rotate-90'
+                    }`}
+                  />
+                </button>
+
+                {openSections.specific && (
+                  <div className="p-3 bg-white border-t border-slate-200/70 space-y-3">
+                    {/* Hauteur */}
+                    <div>
+                      <div className="flex justify-between items-center text-xs mb-1">
+                        <span className="text-[10px] font-bold text-slate-400 uppercase">
+                          Hauteur de la figure
+                        </span>
+                        <span className="text-slate-600 font-bold">
+                          {selectedBlock.content.geometryData?.figureHeight ?? 240} px
+                        </span>
+                      </div>
+                      <input
+                        type="range"
+                        min="160"
+                        max="450"
+                        step="10"
+                        value={selectedBlock.content.geometryData?.figureHeight ?? 240}
+                        onChange={(e) =>
+                          onUpdateBlockContent({
+                            geometryData: {
+                              ...(selectedBlock.content.geometryData as any),
+                              figureHeight: Number(e.target.value),
+                            },
+                          })
+                        }
+                        className="w-full accent-indigo-600 cursor-pointer"
+                      />
+                    </div>
+
+                    {/* Grille */}
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-semibold text-slate-700">
+                        Afficher la grille magnétique
+                      </span>
+                      <input
+                        type="checkbox"
+                        checked={Boolean(selectedBlock.content.geometryData?.showGrid)}
+                        onChange={(e) =>
+                          onUpdateBlockContent({
+                            geometryData: {
+                              ...(selectedBlock.content.geometryData as any),
+                              showGrid: e.target.checked,
+                            },
+                          })
+                        }
+                        className="accent-indigo-600 cursor-pointer"
+                      />
+                    </div>
+
+                    {/* Légende */}
+                    <div>
+                      <label className="text-[10px] font-bold text-slate-400 block uppercase mb-1">
+                        Légende de la figure
+                      </label>
+                      <input
+                        type="text"
+                        value={selectedBlock.content.geometryData?.caption || ''}
+                        onChange={(e) =>
+                          onUpdateBlockContent({
+                            geometryData: {
+                              ...(selectedBlock.content.geometryData as any),
+                              caption: e.target.value,
+                            },
+                          })
+                        }
+                        placeholder="Ex: Triangle ABC rectangle en A"
+                        className="w-full px-2 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 text-xs"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Coordinate System Properties (Phase 4) */}
+            {selectedBlock.type === 'coordinate_system' && (
+              <div className="border border-slate-200/80 rounded-xl overflow-hidden bg-slate-50/40">
+                <button
+                  type="button"
+                  onClick={() => toggleSection('specific')}
+                  className="w-full p-2.5 flex items-center justify-between font-bold text-slate-700 hover:bg-slate-100/70 transition-colors cursor-pointer"
+                >
+                  <span className="flex items-center gap-1.5">
+                    <LineChart className="w-3.5 h-3.5 text-indigo-600" />
+                    <span>Propriétés du Repère</span>
+                  </span>
+                  <ChevronDown
+                    className={`w-3.5 h-3.5 transition-transform ${
+                      openSections.specific ? '' : '-rotate-90'
+                    }`}
+                  />
+                </button>
+
+                {openSections.specific && (
+                  <div className="p-3 bg-white border-t border-slate-200/70 space-y-3">
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="text-[10px] font-bold text-slate-400 block uppercase mb-1">
+                          x min
+                        </label>
+                        <input
+                          type="number"
+                          value={selectedBlock.content.graphData?.xMin ?? -5}
+                          onChange={(e) =>
+                            onUpdateBlockContent({
+                              graphData: {
+                                ...(selectedBlock.content.graphData as any),
+                                xMin: Number(e.target.value),
+                              },
+                            })
+                          }
+                          className="w-full px-2 py-1 bg-slate-50 border border-slate-200 rounded text-xs"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-bold text-slate-400 block uppercase mb-1">
+                          x max
+                        </label>
+                        <input
+                          type="number"
+                          value={selectedBlock.content.graphData?.xMax ?? 5}
+                          onChange={(e) =>
+                            onUpdateBlockContent({
+                              graphData: {
+                                ...(selectedBlock.content.graphData as any),
+                                xMax: Number(e.target.value),
+                              },
+                            })
+                          }
+                          className="w-full px-2 py-1 bg-slate-50 border border-slate-200 rounded text-xs"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <label className="text-[10px] font-bold text-slate-400 block uppercase mb-1">
+                          y min
+                        </label>
+                        <input
+                          type="number"
+                          value={selectedBlock.content.graphData?.yMin ?? -4}
+                          onChange={(e) =>
+                            onUpdateBlockContent({
+                              graphData: {
+                                ...(selectedBlock.content.graphData as any),
+                                yMin: Number(e.target.value),
+                              },
+                            })
+                          }
+                          className="w-full px-2 py-1 bg-slate-50 border border-slate-200 rounded text-xs"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-[10px] font-bold text-slate-400 block uppercase mb-1">
+                          y max
+                        </label>
+                        <input
+                          type="number"
+                          value={selectedBlock.content.graphData?.yMax ?? 5}
+                          onChange={(e) =>
+                            onUpdateBlockContent({
+                              graphData: {
+                                ...(selectedBlock.content.graphData as any),
+                                yMax: Number(e.target.value),
+                              },
+                            })
+                          }
+                          className="w-full px-2 py-1 bg-slate-50 border border-slate-200 rounded text-xs"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-1.5 pt-1">
+                      <label className="flex items-center justify-between text-xs text-slate-700">
+                        <span>Afficher le quadrillage</span>
+                        <input
+                          type="checkbox"
+                          checked={selectedBlock.content.graphData?.showGrid !== false}
+                          onChange={(e) =>
+                            onUpdateBlockContent({
+                              graphData: {
+                                ...(selectedBlock.content.graphData as any),
+                                showGrid: e.target.checked,
+                              },
+                            })
+                          }
+                          className="accent-indigo-600"
+                        />
+                      </label>
+                      <label className="flex items-center justify-between text-xs text-slate-700">
+                        <span>Afficher les valeurs numériques</span>
+                        <input
+                          type="checkbox"
+                          checked={selectedBlock.content.graphData?.showNumbers !== false}
+                          onChange={(e) =>
+                            onUpdateBlockContent({
+                              graphData: {
+                                ...(selectedBlock.content.graphData as any),
+                                showNumbers: e.target.checked,
+                              },
+                            })
+                          }
+                          className="accent-indigo-600"
+                        />
+                      </label>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Construction Area Properties (Phase 4) */}
+            {selectedBlock.type === 'construction_area' && (
+              <div className="border border-slate-200/80 rounded-xl overflow-hidden bg-slate-50/40">
+                <button
+                  type="button"
+                  onClick={() => toggleSection('specific')}
+                  className="w-full p-2.5 flex items-center justify-between font-bold text-slate-700 hover:bg-slate-100/70 transition-colors cursor-pointer"
+                >
+                  <span className="flex items-center gap-1.5">
+                    <Grid className="w-3.5 h-3.5 text-indigo-600" />
+                    <span>Espace de Construction Élève</span>
+                  </span>
+                  <ChevronDown
+                    className={`w-3.5 h-3.5 transition-transform ${
+                      openSections.specific ? '' : '-rotate-90'
+                    }`}
+                  />
+                </button>
+
+                {openSections.specific && (
+                  <div className="p-3 bg-white border-t border-slate-200/70 space-y-3">
+                    {/* Hauteur */}
+                    <div>
+                      <div className="flex justify-between items-center text-xs mb-1">
+                        <span className="text-[10px] font-bold text-slate-400 uppercase">
+                          Hauteur de l'espace
+                        </span>
+                        <span className="text-slate-600 font-bold">
+                          {selectedBlock.content.constructionData?.height ?? 220} px
+                        </span>
+                      </div>
+                      <input
+                        type="range"
+                        min="120"
+                        max="500"
+                        step="10"
+                        value={selectedBlock.content.constructionData?.height ?? 220}
+                        onChange={(e) =>
+                          onUpdateBlockContent({
+                            constructionData: {
+                              ...(selectedBlock.content.constructionData as any),
+                              height: Number(e.target.value),
+                            },
+                          })
+                        }
+                        className="w-full accent-indigo-600 cursor-pointer"
+                      />
+                    </div>
+
+                    {/* Type de fond */}
+                    <div>
+                      <label className="text-[10px] font-bold text-slate-400 block uppercase mb-1">
+                        Fond de papier
+                      </label>
+                      <div className="grid grid-cols-2 gap-1.5 text-xs">
+                        {[
+                          { id: 'square_grid', label: 'Quadrillage' },
+                          { id: 'dot_grid', label: 'Papier pointé' },
+                          { id: 'coordinate_grid', label: 'Repère vierge' },
+                          { id: 'blank', label: 'Blanc uni' },
+                        ].map((bg) => {
+                          const isCur =
+                            (selectedBlock.content.constructionData?.backgroundType ||
+                              'square_grid') === bg.id;
+                          return (
+                            <button
+                              key={bg.id}
+                              type="button"
+                              onClick={() =>
+                                onUpdateBlockContent({
+                                  constructionData: {
+                                    ...(selectedBlock.content.constructionData as any),
+                                    backgroundType: bg.id as any,
+                                  },
+                                })
+                              }
+                              className={`py-1.5 px-2 rounded-lg font-semibold border cursor-pointer ${
+                                isCur
+                                  ? 'bg-indigo-50 border-indigo-400 text-indigo-700'
+                                  : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                              }`}
+                            >
+                              {bg.label}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Cadre de contour */}
+                    <div>
+                      <label className="text-[10px] font-bold text-slate-400 block uppercase mb-1">
+                        Bordure de l'espace
+                      </label>
+                      <div className="grid grid-cols-4 gap-1 text-[11px]">
+                        {['solid', 'dashed', 'dotted', 'none'].map((st) => (
+                          <button
+                            key={st}
+                            type="button"
+                            onClick={() =>
+                              onUpdateBlockContent({
+                                constructionData: {
+                                  ...(selectedBlock.content.constructionData as any),
+                                  borderStyle: st as any,
+                                },
+                              })
+                            }
+                            className={`py-1 rounded border font-semibold capitalize cursor-pointer ${
+                              (selectedBlock.content.constructionData?.borderStyle || 'solid') === st
+                                ? 'bg-indigo-600 text-white border-indigo-600'
+                                : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                            }`}
+                          >
+                            {st === 'none' ? 'Aucune' : st}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Diagram Specific Properties (Phase 4) */}
+            {selectedBlock.type === 'diagram' && (
+              <div className="border border-slate-200/80 rounded-xl overflow-hidden bg-slate-50/40">
+                <button
+                  type="button"
+                  onClick={() => toggleSection('specific')}
+                  className="w-full p-2.5 flex items-center justify-between font-bold text-slate-700 hover:bg-slate-100/70 transition-colors cursor-pointer"
+                >
+                  <span className="flex items-center gap-1.5">
+                    <Network className="w-3.5 h-3.5 text-indigo-600" />
+                    <span>Propriétés du Schéma</span>
+                  </span>
+                  <ChevronDown
+                    className={`w-3.5 h-3.5 transition-transform ${
+                      openSections.specific ? '' : '-rotate-90'
+                    }`}
+                  />
+                </button>
+
+                {openSections.specific && (
+                  <div className="p-3 bg-white border-t border-slate-200/70 space-y-3">
+                    <div>
+                      <div className="flex justify-between items-center text-xs mb-1">
+                        <span className="text-[10px] font-bold text-slate-400 uppercase">
+                          Hauteur du schéma
+                        </span>
+                        <span className="text-slate-600 font-bold">
+                          {selectedBlock.content.diagramData?.diagramHeight ?? 200} px
+                        </span>
+                      </div>
+                      <input
+                        type="range"
+                        min="140"
+                        max="400"
+                        step="10"
+                        value={selectedBlock.content.diagramData?.diagramHeight ?? 200}
+                        onChange={(e) =>
+                          onUpdateBlockContent({
+                            diagramData: {
+                              ...(selectedBlock.content.diagramData as any),
+                              diagramHeight: Number(e.target.value),
+                            },
+                          })
+                        }
+                        className="w-full accent-indigo-600 cursor-pointer"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-[10px] font-bold text-slate-400 block uppercase mb-1">
+                        Légende du schéma
+                      </label>
+                      <input
+                        type="text"
+                        value={selectedBlock.content.diagramData?.caption || ''}
+                        onChange={(e) =>
+                          onUpdateBlockContent({
+                            diagramData: {
+                              ...(selectedBlock.content.diagramData as any),
+                              caption: e.target.value,
+                            },
+                          })
+                        }
+                        placeholder="Ex : Schéma de démonstration..."
+                        className="w-full px-2 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-slate-800 text-xs"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Image Annotation Properties (Phase 4) */}
+            {selectedBlock.type === 'image_annotation' && (
+              <div className="border border-slate-200/80 rounded-xl overflow-hidden bg-slate-50/40">
+                <button
+                  type="button"
+                  onClick={() => toggleSection('specific')}
+                  className="w-full p-2.5 flex items-center justify-between font-bold text-slate-700 hover:bg-slate-100/70 transition-colors cursor-pointer"
+                >
+                  <span className="flex items-center gap-1.5">
+                    <Tag className="w-3.5 h-3.5 text-indigo-600" />
+                    <span>Mode d'Annotation</span>
+                  </span>
                   <ChevronDown
                     className={`w-3.5 h-3.5 transition-transform ${
                       openSections.specific ? '' : '-rotate-90'
@@ -3248,30 +4000,38 @@ export const WorksheetRightPanel: React.FC<WorksheetRightPanelProps> = ({
                       <button
                         type="button"
                         onClick={() =>
-                          onUpdateBlockContent({ shapeType: 'rectangle' })
+                          onUpdateBlockContent({
+                            annotationData: {
+                              ...(selectedBlock.content.annotationData as any),
+                              mode: 'student_exercise',
+                            },
+                          })
                         }
-                        className={`py-2 px-3 rounded-lg border font-bold flex items-center justify-center gap-2 cursor-pointer ${
-                          selectedBlock.content.shapeType !== 'circle'
+                        className={`p-2 rounded-lg border text-xs font-bold text-center cursor-pointer ${
+                          selectedBlock.content.annotationData?.mode === 'student_exercise'
                             ? 'bg-indigo-50 border-indigo-400 text-indigo-700'
-                            : 'bg-white border-slate-200 text-slate-600'
+                            : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
                         }`}
                       >
-                        <Square className="w-4 h-4" />
-                        <span>Rectangle</span>
+                        Exercice élève (Lignes à remplir)
                       </button>
                       <button
                         type="button"
                         onClick={() =>
-                          onUpdateBlockContent({ shapeType: 'circle' })
+                          onUpdateBlockContent({
+                            annotationData: {
+                              ...(selectedBlock.content.annotationData as any),
+                              mode: 'complete',
+                            },
+                          })
                         }
-                        className={`py-2 px-3 rounded-lg border font-bold flex items-center justify-center gap-2 cursor-pointer ${
-                          selectedBlock.content.shapeType === 'circle'
+                        className={`p-2 rounded-lg border text-xs font-bold text-center cursor-pointer ${
+                          selectedBlock.content.annotationData?.mode === 'complete'
                             ? 'bg-indigo-50 border-indigo-400 text-indigo-700'
-                            : 'bg-white border-slate-200 text-slate-600'
+                            : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
                         }`}
                       >
-                        <Circle className="w-4 h-4" />
-                        <span>Cercle</span>
+                        Schéma d'étude (Légendes affichées)
                       </button>
                     </div>
                   </div>
@@ -3279,15 +4039,18 @@ export const WorksheetRightPanel: React.FC<WorksheetRightPanelProps> = ({
               </div>
             )}
 
-            {/* 5. Line Specific Properties */}
-            {selectedBlock.type === 'line' && (
+            {/* Shape Specific Properties (Phase 4) */}
+            {selectedBlock.type === 'shape' && (
               <div className="border border-slate-200/80 rounded-xl overflow-hidden bg-slate-50/40">
                 <button
                   type="button"
                   onClick={() => toggleSection('specific')}
                   className="w-full p-2.5 flex items-center justify-between font-bold text-slate-700 hover:bg-slate-100/70 transition-colors cursor-pointer"
                 >
-                  <span>Style de la ligne</span>
+                  <span className="flex items-center gap-1.5">
+                    <Shapes className="w-3.5 h-3.5 text-indigo-600" />
+                    <span>Forme Vectorielle Simple</span>
+                  </span>
                   <ChevronDown
                     className={`w-3.5 h-3.5 transition-transform ${
                       openSections.specific ? '' : '-rotate-90'
@@ -3297,60 +4060,67 @@ export const WorksheetRightPanel: React.FC<WorksheetRightPanelProps> = ({
 
                 {openSections.specific && (
                   <div className="p-3 bg-white border-t border-slate-200/70 space-y-3">
-                    <div className="grid grid-cols-3 gap-1.5">
+                    <label className="text-[10px] font-bold text-slate-400 block uppercase mb-1">
+                      Type de forme
+                    </label>
+                    <div className="grid grid-cols-3 gap-1.5 text-xs">
                       {[
-                        { label: 'Continu', value: 'solid' },
-                        { label: 'Tirets', value: 'dashed' },
-                        { label: 'Pointillés', value: 'dotted' },
-                      ].map((st) => (
-                        <button
-                          key={st.value}
-                          type="button"
-                          onClick={() =>
-                            onUpdateBlockStyles({
-                              borderStyle: st.value as any,
-                            })
-                          }
-                          className={`py-1.5 px-2 rounded-lg border text-[11px] font-bold cursor-pointer ${
-                            (selectedBlock.styles.borderStyle || 'solid') === st.value
-                              ? 'bg-indigo-50 border-indigo-400 text-indigo-700'
-                              : 'bg-white border-slate-200 text-slate-600'
-                          }`}
-                        >
-                          {st.label}
-                        </button>
-                      ))}
-                    </div>
-
-                    <div>
-                      <label className="text-[10px] font-bold text-slate-400 block uppercase mb-1">
-                        Épaisseur ({selectedBlock.styles.borderWidth || 2}px)
-                      </label>
-                      <input
-                        type="range"
-                        min="1"
-                        max="8"
-                        value={selectedBlock.styles.borderWidth || 2}
-                        onChange={(e) =>
-                          onUpdateBlockStyles({ borderWidth: Number(e.target.value) })
-                        }
-                        className="w-full accent-indigo-600"
-                      />
+                        { id: 'rounded_rectangle', label: 'Rectangle' },
+                        { id: 'circle', label: 'Cercle' },
+                        { id: 'ellipse', label: 'Ellipse' },
+                        { id: 'arrow', label: 'Flèche' },
+                        { id: 'double_arrow', label: 'Flèche double' },
+                        { id: 'line', label: 'Ligne' },
+                        { id: 'triangle', label: 'Triangle' },
+                        { id: 'brace', label: 'Accolade' },
+                      ].map((sh) => {
+                        const curKind =
+                          selectedBlock.content.shapeData?.shapeKind ||
+                          selectedBlock.content.shapeType ||
+                          'rounded_rectangle';
+                        const isCur = curKind === sh.id;
+                        return (
+                          <button
+                            key={sh.id}
+                            type="button"
+                            onClick={() =>
+                              onUpdateBlockContent({
+                                shapeData: {
+                                  ...(selectedBlock.content.shapeData as any),
+                                  shapeKind: sh.id as any,
+                                },
+                              })
+                            }
+                            className={`py-1.5 px-1 rounded-lg border font-semibold text-[11px] text-center cursor-pointer ${
+                              isCur
+                                ? 'bg-indigo-50 border-indigo-400 text-indigo-700'
+                                : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                            }`}
+                          >
+                            {sh.label}
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
                 )}
               </div>
             )}
 
-            {/* 6. Answer Zone Specific Properties */}
-            {selectedBlock.type === 'answer_zone' && (
+            {/* 5. Séparateur & Espaceur (Phase 2 core block) */}
+            {(selectedBlock.type === 'separator' ||
+              selectedBlock.type === 'line' ||
+              selectedBlock.type === 'spacer') && (
               <div className="border border-slate-200/80 rounded-xl overflow-hidden bg-slate-50/40">
                 <button
                   type="button"
                   onClick={() => toggleSection('specific')}
                   className="w-full p-2.5 flex items-center justify-between font-bold text-slate-700 hover:bg-slate-100/70 transition-colors cursor-pointer"
                 >
-                  <span>Zone de réponse élève</span>
+                  <div className="flex items-center gap-2">
+                    <Minus className="w-3.5 h-3.5 text-indigo-600" />
+                    <span>Propriétés du Séparateur</span>
+                  </div>
                   <ChevronDown
                     className={`w-3.5 h-3.5 transition-transform ${
                       openSections.specific ? '' : '-rotate-90'
@@ -3359,51 +4129,283 @@ export const WorksheetRightPanel: React.FC<WorksheetRightPanelProps> = ({
                 </button>
 
                 {openSections.specific && (
-                  <div className="p-3 bg-white border-t border-slate-200/70 space-y-3">
+                  <div className="p-3 bg-white border-t border-slate-200/70 space-y-3 text-xs">
+                    {/* Choix du mode : Ligne vs Espaceur */}
                     <div>
                       <label className="text-[10px] font-bold text-slate-400 block uppercase mb-1">
+                        Type de séparation
+                      </label>
+                      <div className="grid grid-cols-2 gap-1.5">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            onUpdateBlockContent({ separatorMode: 'line' });
+                            onUpdateBlockStyles({
+                              borderStyle: selectedBlock.styles.borderStyle && selectedBlock.styles.borderStyle !== 'none'
+                                ? selectedBlock.styles.borderStyle
+                                : 'solid',
+                              borderWidth: selectedBlock.styles.borderWidth || 1,
+                            });
+                          }}
+                          className={`py-1.5 px-2 rounded-lg border font-bold text-xs transition-all cursor-pointer ${
+                            (selectedBlock.content.separatorMode || (selectedBlock.type === 'spacer' ? 'space' : 'line')) !== 'space'
+                              ? 'bg-indigo-50 border-indigo-500 text-indigo-700 shadow-2xs'
+                              : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                          }`}
+                        >
+                          Ligne de séparation
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            onUpdateBlockContent({
+                              separatorMode: 'space',
+                              spacerHeight: selectedBlock.content.spacerHeight || 24,
+                            });
+                          }}
+                          className={`py-1.5 px-2 rounded-lg border font-bold text-xs transition-all cursor-pointer ${
+                            (selectedBlock.content.separatorMode || (selectedBlock.type === 'spacer' ? 'space' : 'line')) === 'space'
+                              ? 'bg-indigo-50 border-indigo-500 text-indigo-700 shadow-2xs'
+                              : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                          }`}
+                        >
+                          Espace blanc (Spacer)
+                        </button>
+                      </div>
+                    </div>
+
+                    {(selectedBlock.content.separatorMode || (selectedBlock.type === 'spacer' ? 'space' : 'line')) !== 'space' ? (
+                      <>
+                        {/* Style du trait */}
+                        <div>
+                          <label className="text-[10px] font-bold text-slate-400 block uppercase mb-1">
+                            Style du trait
+                          </label>
+                          <div className="grid grid-cols-4 gap-1">
+                            {[
+                              { label: 'Continu', value: 'solid' },
+                              { label: 'Tirets', value: 'dashed' },
+                              { label: 'Pointillés', value: 'dotted' },
+                              { label: 'Double', value: 'double' },
+                            ].map((st) => (
+                              <button
+                                key={st.value}
+                                type="button"
+                                onClick={() =>
+                                  onUpdateBlockStyles({
+                                    borderStyle: st.value as any,
+                                  })
+                                }
+                                className={`py-1.5 px-1 rounded-lg border text-[11px] font-bold transition-all cursor-pointer ${
+                                  (selectedBlock.styles.borderStyle || 'solid') === st.value
+                                    ? 'bg-indigo-50 border-indigo-400 text-indigo-700 shadow-2xs'
+                                    : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                                }`}
+                              >
+                                {st.label}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
+                        {/* Épaisseur */}
+                        <div>
+                          <div className="flex justify-between items-center mb-0.5">
+                            <label className="text-[10px] font-bold text-slate-400 uppercase">
+                              Épaisseur
+                            </label>
+                            <span className="text-[10px] font-mono text-indigo-600 font-bold">
+                              {selectedBlock.styles.borderWidth || 1}px
+                            </span>
+                          </div>
+                          <input
+                            type="range"
+                            min="1"
+                            max="6"
+                            value={selectedBlock.styles.borderWidth || 1}
+                            onChange={(e) =>
+                              onUpdateBlockStyles({ borderWidth: Number(e.target.value) })
+                            }
+                            className="w-full accent-indigo-600"
+                          />
+                        </div>
+
+                        {/* Couleur */}
+                        <div>
+                          <label className="text-[10px] font-bold text-slate-400 block uppercase mb-1">
+                            Couleur du trait
+                          </label>
+                          <div className="flex items-center gap-1.5">
+                            {['#cbd5e1', '#94a3b8', '#64748b', '#3b82f6', '#10b981', '#f59e0b'].map((col) => (
+                              <button
+                                key={col}
+                                type="button"
+                                onClick={() => onUpdateBlockStyles({ borderColor: col })}
+                                className={`w-5 h-5 rounded border transition-transform cursor-pointer ${
+                                  (selectedBlock.styles.borderColor || '#cbd5e1') === col
+                                    ? 'border-indigo-600 scale-110 ring-1 ring-indigo-400'
+                                    : 'border-slate-300'
+                                }`}
+                                style={{ backgroundColor: col }}
+                              />
+                            ))}
+                            <input
+                              type="color"
+                              value={selectedBlock.styles.borderColor || '#cbd5e1'}
+                              onChange={(e) =>
+                                onUpdateBlockStyles({ borderColor: e.target.value })
+                              }
+                              className="w-6 h-6 rounded border border-slate-200 p-0.5 cursor-pointer"
+                            />
+                          </div>
+                        </div>
+                      </>
+                    ) : (
+                      /* Paramètres Espaceur */
+                      <div>
+                        <div className="flex justify-between items-center mb-0.5">
+                          <label className="text-[10px] font-bold text-slate-400 uppercase">
+                            Hauteur de l'espace
+                          </label>
+                          <span className="text-[10px] font-mono text-indigo-600 font-bold">
+                            {selectedBlock.content.spacerHeight || 24}px
+                          </span>
+                        </div>
+                        <input
+                          type="range"
+                          min="10"
+                          max="120"
+                          step="4"
+                          value={selectedBlock.content.spacerHeight || 24}
+                          onChange={(e) => {
+                            const val = Number(e.target.value);
+                            onUpdateBlockContent({ spacerHeight: val });
+                            onUpdateSelectedBlock({ height: Math.max(16, val) });
+                          }}
+                          className="w-full accent-indigo-600"
+                        />
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* 6. Lignes de réponse élève (Phase 2 core block: answer_lines) */}
+            {(selectedBlock.type === 'answer_lines' || selectedBlock.type === 'answer_zone') && (
+              <div className="border border-rose-200/80 rounded-xl overflow-hidden bg-rose-50/20 shadow-xs">
+                <button
+                  type="button"
+                  onClick={() => toggleSection('specific')}
+                  className="w-full p-2.5 flex items-center justify-between font-bold text-slate-800 hover:bg-rose-50/50 transition-colors cursor-pointer"
+                >
+                  <div className="flex items-center gap-2">
+                    <PenTool className="w-3.5 h-3.5 text-rose-600" />
+                    <span>Propriétés des Lignes de réponse</span>
+                  </div>
+                  <ChevronDown
+                    className={`w-3.5 h-3.5 transition-transform ${
+                      openSections.specific ? '' : '-rotate-90'
+                    }`}
+                  />
+                </button>
+
+                {openSections.specific && (
+                  <div className="p-3 bg-white border-t border-rose-100 space-y-3.5 text-xs">
+                    {/* Type de tracé */}
+                    <div>
+                      <label className="text-[10px] font-bold text-slate-500 block uppercase mb-1">
                         Type de tracé
                       </label>
                       <div className="grid grid-cols-3 gap-1">
                         {[
-                          { label: 'Lignes', value: 'lines' },
                           { label: 'Pointillés', value: 'dots' },
+                          { label: 'Lignes', value: 'lines' },
+                          { label: 'Tirets', value: 'dashed' },
+                          { label: 'Grille', value: 'grid' },
                           { label: 'Cadre vide', value: 'box' },
-                        ].map((t) => (
-                          <button
-                            key={t.value}
-                            type="button"
-                            onClick={() =>
-                              onUpdateBlockContent({ answerType: t.value as any })
-                            }
-                            className={`py-1.5 px-2 rounded-lg border text-[11px] font-bold cursor-pointer ${
-                              (selectedBlock.content.answerType || 'lines') === t.value
-                                ? 'bg-indigo-50 border-indigo-400 text-indigo-700'
-                                : 'bg-white border-slate-200 text-slate-600'
-                            }`}
-                          >
-                            {t.label}
-                          </button>
-                        ))}
+                        ].map((t) => {
+                          const currentVal =
+                            selectedBlock.content.lineStyle ||
+                            selectedBlock.content.answerType ||
+                            'dots';
+                          const isCurrent = currentVal === t.value || (t.value === 'dots' && currentVal === 'dotted') || (t.value === 'lines' && currentVal === 'solid');
+                          return (
+                            <button
+                              key={t.value}
+                              type="button"
+                              onClick={() => {
+                                onUpdateBlockContent({
+                                  answerType: t.value as any,
+                                  lineStyle: (t.value === 'dots' ? 'dotted' : t.value === 'lines' ? 'solid' : t.value) as any,
+                                });
+                              }}
+                              className={`py-1.5 px-1 rounded-lg border text-[11px] font-bold transition-all cursor-pointer ${
+                                isCurrent
+                                  ? 'bg-rose-50 border-rose-500 text-rose-700 shadow-2xs font-bold'
+                                  : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                              }`}
+                            >
+                              {t.label}
+                            </button>
+                          );
+                        })}
                       </div>
                     </div>
 
                     {selectedBlock.content.answerType !== 'box' && (
-                      <div>
-                        <label className="text-[10px] font-bold text-slate-400 block uppercase mb-1">
-                          Nombre de lignes ({selectedBlock.content.lineCount || 4})
-                        </label>
-                        <input
-                          type="range"
-                          min="1"
-                          max="10"
-                          value={selectedBlock.content.lineCount || 4}
-                          onChange={(e) =>
-                            onUpdateBlockContent({ lineCount: Number(e.target.value) })
-                          }
-                          className="w-full accent-indigo-600"
-                        />
-                      </div>
+                      <>
+                        {/* Nombre de lignes */}
+                        <div>
+                          <div className="flex justify-between items-center mb-0.5">
+                            <label className="text-[10px] font-bold text-slate-500 uppercase">
+                              Nombre de lignes
+                            </label>
+                            <span className="text-[10px] font-mono text-rose-600 font-bold">
+                              {selectedBlock.content.lineCount || 3} lignes
+                            </span>
+                          </div>
+                          <input
+                            type="range"
+                            min="1"
+                            max="15"
+                            value={selectedBlock.content.lineCount || 3}
+                            onChange={(e) => {
+                              const cnt = Number(e.target.value);
+                              const spacing = selectedBlock.content.lineSpacing || 28;
+                              onUpdateBlockContent({ lineCount: cnt });
+                              onUpdateSelectedBlock({ height: Math.max(48, cnt * spacing + 16) });
+                            }}
+                            className="w-full accent-rose-600"
+                          />
+                        </div>
+
+                        {/* Espacement des lignes */}
+                        <div>
+                          <div className="flex justify-between items-center mb-0.5">
+                            <label className="text-[10px] font-bold text-slate-500 uppercase">
+                              Interligne (espacement)
+                            </label>
+                            <span className="text-[10px] font-mono text-rose-600 font-bold">
+                              {selectedBlock.content.lineSpacing || 28}px
+                            </span>
+                          </div>
+                          <input
+                            type="range"
+                            min="20"
+                            max="44"
+                            step="2"
+                            value={selectedBlock.content.lineSpacing || 28}
+                            onChange={(e) => {
+                              const sp = Number(e.target.value);
+                              const cnt = selectedBlock.content.lineCount || 3;
+                              onUpdateBlockContent({ lineSpacing: sp });
+                              onUpdateSelectedBlock({ height: Math.max(48, cnt * sp + 16) });
+                            }}
+                            className="w-full accent-rose-600"
+                          />
+                        </div>
+                      </>
                     )}
                   </div>
                 )}

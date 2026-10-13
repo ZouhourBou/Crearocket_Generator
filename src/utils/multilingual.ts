@@ -108,50 +108,50 @@ export function extractBlockLocalizedText(
  * Checks whether a block has a non-empty, translated textual version in the given language.
  */
 export function isBlockTranslated(block: WorksheetBlock, lang: DocumentLanguage): boolean {
-  // Non-text blocks (image, shape, line, spacer) are always considered translated
-  if (['image', 'shape', 'line', 'spacer'].includes(block.type)) {
+  // Non-text blocks (image, shape, line, spacer, separator, answer_lines, answer_zone) are always considered translated
+  if (['image', 'shape', 'line', 'spacer', 'separator', 'answer_lines', 'answer_zone'].includes(block.type)) {
     return true;
   }
 
   const trans = block.translations?.[lang];
-  if (!trans) {
-    return false;
-  }
 
   switch (block.type) {
     case 'title':
     case 'subtitle':
     case 'instruction':
     case 'text':
-      return typeof trans.text === 'string' && trans.text.trim().length > 0;
+    case 'rich_text':
+      if (trans && typeof trans.text === 'string' && trans.text.trim().length > 0) return true;
+      return Boolean(block.content.text && block.content.text.trim().length > 0);
 
+    case 'exercise':
     case 'exercise_header':
-      return (
-        (typeof trans.exerciseTitle === 'string' && trans.exerciseTitle.trim().length > 0) ||
-        (trans.points !== undefined && String(trans.points).trim().length > 0)
-      );
+      if (trans) {
+        return (
+          (typeof trans.exerciseTitle === 'string' && trans.exerciseTitle.trim().length > 0) ||
+          (trans.points !== undefined && String(trans.points).trim().length > 0)
+        );
+      }
+      return Boolean(block.content.exerciseTitle && block.content.exerciseTitle.trim().length > 0);
 
     case 'qcm_exam':
-      if (trans.questions && trans.questions.length > 0) {
+      if (trans?.questions && trans.questions.length > 0) {
         return trans.questions.some(
           (q) =>
             q.statement.trim().length > 0 ||
-            q.options.some((o) => o.text && o.text.trim().length > 0)
+            q.options.some((o: any) => o.text && o.text.trim().length > 0)
         );
       }
       return false;
 
     case 'fill_in_blanks':
-      if (trans.lines && trans.lines.length > 0) {
+      if (trans?.lines && trans.lines.length > 0) {
         return trans.lines.some((l) => l.text && l.text.trim().length > 0);
       }
       return false;
 
-    case 'answer_zone':
-      return true;
-
     default:
-      return Boolean(trans.text && trans.text.trim().length > 0);
+      return Boolean((trans?.text || block.content.text || '').trim().length > 0);
   }
 }
 
@@ -270,8 +270,13 @@ export function applyLanguageToBlock(
     }
   }
 
+  const updatedChildren = block.children
+    ? block.children.map((child) => applyLanguageToBlock(child, targetLang, isIndependentAr))
+    : undefined;
+
   return {
     ...block,
+    ...(updatedChildren ? { children: updatedChildren } : {}),
     content: updatedContent,
     translations,
     styles: updatedStyles,

@@ -9,6 +9,8 @@ import {
 import { InlineMathText } from './InlineMathText';
 import { InlineMathToolbar } from './InlineMathToolbar';
 import { ProfessionalMathEditorModal } from './ProfessionalMathEditorModal';
+import { CoreRichTextField } from './CoreRichTextField';
+import { computeQCMQuestionsPoints, formatPointsLabel } from '../../../utils/scoring';
 import {
   Plus,
   Trash2,
@@ -17,10 +19,13 @@ import {
   Star,
   ArrowRight,
   ArrowLeft,
+  ArrowUp,
+  ArrowDown,
   Check,
   Diamond,
   CircleDot,
   Edit2,
+  CheckCircle2,
 } from 'lucide-react';
 import { resolveBlockDirection } from '../../../utils/textDirection';
 import { TitleFloatingToolbar } from '../TitleFloatingToolbar';
@@ -190,12 +195,56 @@ export const QCMExamBlockItem: React.FC<QCMExamBlockItemProps> = ({
 
   const handleToggleOptionCorrect = (qId: string, optId: string) => {
     if (readOnly) return;
+    const globalMode = content.selectionMode || 'single';
     const updated = questions.map((q) => {
       if (q.id !== qId) return q;
+      const effectiveMode = q.selectionMode || globalMode;
       return {
         ...q,
-        options: q.options.map((o) => (o.id === optId ? { ...o, isCorrect: !o.isCorrect } : o)),
+        options: q.options.map((o) => {
+          if (effectiveMode === 'single') {
+            return { ...o, isCorrect: o.id === optId ? !o.isCorrect : false };
+          }
+          return o.id === optId ? { ...o, isCorrect: !o.isCorrect } : o;
+        }),
       };
+    });
+    updateContent({ questions: updated });
+  };
+
+  const handleUpdateQuestionPoints = (qId: string, pts: number) => {
+    const updated = questions.map((q) => (q.id === qId ? { ...q, points: pts } : q));
+    updateContent({ questions: updated });
+  };
+
+  const handleUpdateQuestionSelectionMode = (qId: string, mode: 'single' | 'multiple') => {
+    const updated = questions.map((q) => (q.id === qId ? { ...q, selectionMode: mode } : q));
+    updateContent({ questions: updated });
+  };
+
+  const handleUpdateQuestionExplanation = (qId: string, explanation: string) => {
+    const updated = questions.map((q) => (q.id === qId ? { ...q, explanation } : q));
+    updateContent({ questions: updated });
+  };
+
+  const handleMoveQuestion = (qIdx: number, dir: 'up' | 'down') => {
+    const targetIdx = dir === 'up' ? qIdx - 1 : qIdx + 1;
+    if (targetIdx < 0 || targetIdx >= questions.length) return;
+    const next = [...questions];
+    const [moved] = next.splice(qIdx, 1);
+    next.splice(targetIdx, 0, moved);
+    updateContent({ questions: next });
+  };
+
+  const handleMoveOption = (qId: string, optIdx: number, dir: 'up' | 'down') => {
+    const updated = questions.map((q) => {
+      if (q.id !== qId) return q;
+      const targetIdx = dir === 'up' ? optIdx - 1 : optIdx + 1;
+      if (targetIdx < 0 || targetIdx >= q.options.length) return q;
+      const nextOpts = [...q.options];
+      const [moved] = nextOpts.splice(optIdx, 1);
+      nextOpts.splice(targetIdx, 0, moved);
+      return { ...q, options: nextOpts };
     });
     updateContent({ questions: updated });
   };
@@ -831,10 +880,30 @@ export const QCMExamBlockItem: React.FC<QCMExamBlockItemProps> = ({
           onClick={(e) => e.stopPropagation()}
           className="mb-2 p-1.5 bg-slate-900 text-white rounded-xl shadow-md flex items-center justify-between gap-2 text-xs border border-slate-700/80 animate-in fade-in duration-100"
         >
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <span className="text-[10px] font-bold text-indigo-300 uppercase tracking-wider px-1">
-              QCM Universel :
+              QCM Pro :
             </span>
+
+            <span className="px-2 py-0.5 rounded bg-slate-800 text-amber-300 font-bold text-[11px] border border-slate-700 tabular-nums">
+              Total : {formatPointsLabel(computeQCMQuestionsPoints(questions), isRtl)}
+            </span>
+
+            {/* Global Selection Mode (Single vs Multiple) */}
+            <button
+              type="button"
+              onClick={() =>
+                updateContent({
+                  selectionMode: (content.selectionMode || 'single') === 'single' ? 'multiple' : 'single',
+                })
+              }
+              className="px-2 py-1 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 font-semibold text-[11px] border border-slate-700 cursor-pointer"
+              title="Mode de sélection par défaut : réponse unique ou réponses multiples"
+            >
+              {(content.selectionMode || 'single') === 'multiple'
+                ? '☑ Réponses multiples'
+                : '🔘 Réponse unique'}
+            </button>
 
             {/* Answer Key Mode (Mode Corrigé) Toggle */}
             <button
@@ -845,10 +914,10 @@ export const QCMExamBlockItem: React.FC<QCMExamBlockItemProps> = ({
                   ? 'bg-emerald-600 text-white shadow-xs ring-2 ring-emerald-400/40'
                   : 'bg-slate-800 hover:bg-slate-700 text-slate-300'
               }`}
-              title="Afficher ou masquer les réponses cochées dans le corrigé"
+              title="Afficher ou masquer les réponses cochées et les explications dans le corrigé"
             >
               <CheckSquare className="w-3.5 h-3.5 text-emerald-200" />
-              <span>{showAnswers ? 'Mode Corrigé (Activé)' : 'Mode Corrigé (Désactivé)'}</span>
+              <span>{showAnswers ? 'Mode Corrigé (Activé)' : 'Mode Corrigé'}</span>
             </button>
           </div>
 
@@ -1071,78 +1140,141 @@ export const QCMExamBlockItem: React.FC<QCMExamBlockItemProps> = ({
                   : 'border-transparent hover:bg-slate-50/80 hover:border-slate-200/60'
               }`}
             >
-              {/* Floating Inline Math Toolbar when Statement is being edited */}
-              {isStatementEditing && (
-                <div className="mb-2" onClick={(e) => e.stopPropagation()}>
-                  <InlineMathToolbar
-                    onInsertSymbol={handleInsertSymbolToActive}
-                    onOpenEquationEditor={handleOpenMathModalForActiveInput}
-                  />
-                </div>
-              )}
-
-              {/* Question Header: Number + Statement with isolated LTR math */}
+              {/* Question Header: Number + Statement (Universal Core Editor) + Points + Reorder/Delete */}
               <div
-                className={`flex items-baseline gap-2 mb-2 ${isRtl ? 'flex-row' : 'flex-row'}`}
+                className={`flex items-start gap-2 mb-2 ${isRtl ? 'flex-row' : 'flex-row'}`}
                 style={{
                   fontSize: `${qFontSize}px`,
                   fontFamily: qFontFamily,
-                  fontWeight: (question as any).fontWeight || styles.statementFontWeight || 'normal',
+                  fontWeight: (question as any).fontWeight || (styles as any).statementFontWeight || 'normal',
                   color: qColor,
                   textAlign: qAlign as any,
                 }}
               >
                 {qNum && (
-                  <span className="font-bold shrink-0 select-none flex items-center">
+                  <span className="font-bold shrink-0 select-none flex items-center pt-0.5">
                     {qNum}
                   </span>
                 )}
 
-                {isStatementEditing ? (
-                  <div className="flex-1" onClick={(e) => e.stopPropagation()}>
-                    <input
-                      ref={activeInputRef as any}
-                      type="text"
-                      autoFocus
-                      dir={effectiveDirection}
-                      value={question.statement}
-                      onChange={(e) => handleUpdateStatement(question.id, e.target.value)}
-                      onBlur={() => setEditingStatementId(null)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') setEditingStatementId(null);
-                      }}
-                      className="w-full px-2.5 py-1 bg-white border-2 border-indigo-500 rounded-lg font-normal outline-none text-slate-800 shadow-xs"
-                      style={{ fontSize: `${qFontSize}px` }}
-                    />
-                  </div>
-                ) : (
-                  <div
-                    onDoubleClick={() => !readOnly && isSelected && setEditingStatementId(question.id)}
-                    className="flex-1 font-normal cursor-text select-text hover:text-indigo-900 leading-relaxed"
-                    title={isSelected ? 'Double-cliquez pour modifier l’énoncé (ou cliquez sur une formule pour la retoucher)' : undefined}
-                  >
-                    <InlineMathText
-                      text={question.statement}
-                      onEquationClick={(formula) =>
-                        handleOpenMathModalForExisting('statement', question.id, formula)
-                      }
-                    />
-                  </div>
-                )}
-
-                {/* Quick Deletion of Question (hover action - Axe 4) */}
-                {isSelected && !readOnly && questions.length > 1 && (
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleDeleteQuestion(question.id);
+                <div className="flex-1 min-w-0">
+                  <CoreRichTextField
+                    value={question.statement}
+                    onChange={(newVal) => handleUpdateStatement(question.id, newVal)}
+                    placeholder={
+                      isRtl
+                        ? 'اكتب نص سؤال QCM أو المعادلة هنا...'
+                        : 'Rédigez l’énoncé de la question QCM (texte, formules ∑)...'
+                    }
+                    isRtl={isRtl}
+                    readOnly={readOnly}
+                    isSelected={isSelected}
+                    styles={{
+                      fontFamily: qFontFamily,
+                      fontSize: qFontSize,
+                      color: qColor,
+                      textDirection: effectiveDirection,
+                      textAlign: qAlign as any,
                     }}
-                    title="Supprimer cette question"
-                    className="opacity-0 group-hover/question:opacity-100 p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-opacity cursor-pointer shrink-0"
+                    onOpenCustomMathModal={(existing) =>
+                      handleOpenMathModalForExisting('statement', question.id, existing)
+                    }
+                    labelBadge={`Q${qIdx + 1}`}
+                  />
+                </div>
+
+                {/* Per-Question Points (Barème) + Single/Multiple Badge */}
+                <div
+                  className="shrink-0 flex items-center gap-1 select-none"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {isSelected && !readOnly ? (
+                    <>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          handleUpdateQuestionSelectionMode(
+                            question.id,
+                            (question.selectionMode || content.selectionMode || 'single') === 'single'
+                              ? 'multiple'
+                              : 'single'
+                          )
+                        }
+                        className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-slate-100 hover:bg-indigo-50 text-slate-600 hover:text-indigo-700 border border-slate-200 cursor-pointer"
+                        title="Basculer entre réponse unique et réponses multiples pour cette question"
+                      >
+                        {(question.selectionMode || content.selectionMode || 'single') === 'multiple'
+                          ? 'Multi ☑'
+                          : 'Unique 🔘'}
+                      </button>
+                      <div className="flex items-center gap-0.5 bg-slate-100 border border-slate-200 rounded-md px-1.5 py-0.5 text-xs">
+                        <input
+                          type="number"
+                          step="0.25"
+                          min="0"
+                          max="100"
+                          value={question.points ?? 1}
+                          onChange={(e) =>
+                            handleUpdateQuestionPoints(
+                              question.id,
+                              Math.max(0, parseFloat(e.target.value) || 0)
+                            )
+                          }
+                          className="w-10 text-center font-bold text-indigo-700 bg-white border border-slate-200 rounded px-0.5 py-0.5 outline-none focus:border-indigo-500 tabular-nums"
+                          title="Barème (points) de cette question"
+                        />
+                        <span className="text-[10px] font-semibold text-slate-500">
+                          {isRtl ? 'ن' : 'pt'}
+                        </span>
+                      </div>
+                    </>
+                  ) : (
+                    (question.points ?? 1) > 0 && (
+                      <span className="text-xs font-semibold text-slate-600 whitespace-nowrap tabular-nums">
+                        {formatPointsLabel(question.points ?? 1, isRtl)}
+                      </span>
+                    )
+                  )}
+                </div>
+
+                {/* Reorder & Deletion of Question */}
+                {isSelected && !readOnly && (
+                  <div
+                    dir="ltr"
+                    onClick={(e) => e.stopPropagation()}
+                    className="opacity-0 group-hover/question:opacity-100 flex items-center gap-0.5 transition-opacity shrink-0"
                   >
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </button>
+                    {qIdx > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => handleMoveQuestion(qIdx, 'up')}
+                        title="Monter la question"
+                        className="p-1 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded cursor-pointer"
+                      >
+                        <ArrowUp className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                    {qIdx < questions.length - 1 && (
+                      <button
+                        type="button"
+                        onClick={() => handleMoveQuestion(qIdx, 'down')}
+                        title="Descendre la question"
+                        className="p-1 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded cursor-pointer"
+                      >
+                        <ArrowDown className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                    {questions.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteQuestion(question.id)}
+                        title="Supprimer cette question"
+                        className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded cursor-pointer"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                  </div>
                 )}
               </div>
 
@@ -1216,87 +1348,103 @@ export const QCMExamBlockItem: React.FC<QCMExamBlockItemProps> = ({
                         </span>
                       )}
 
-                      {/* Option Text with Inline Math & Bidi Protection */}
-                      {isOptionEditing ? (
+                      {/* Option Content with Universal Core Editor (Rich Text + Math + AR/FR) */}
+                      <div className="flex-1 min-w-0">
+                        <CoreRichTextField
+                          value={opt.text}
+                          onChange={(newText) => handleUpdateOption(question.id, opt.id, newText)}
+                          placeholder={isRtl ? 'اكتب المقترح...' : 'Proposition...'}
+                          isRtl={isRtl}
+                          readOnly={readOnly}
+                          isSelected={isSelected}
+                          singleLine
+                          styles={{
+                            fontFamily: optFontFamily,
+                            fontSize: optFontSizeVal,
+                            color: optColor,
+                            textDirection: effectiveDirection,
+                          }}
+                          onOpenCustomMathModal={(existing) =>
+                            handleOpenMathModalForExisting('option', question.id, existing, opt.id)
+                          }
+                          labelBadge={`Option ${optIdx + 1}`}
+                        />
+                      </div>
+
+                      {/* Option Reorder & Quick Equation / Deletion */}
+                      {isSelected && !readOnly && (
                         <div
-                          className="flex-1 flex flex-col gap-1"
+                          dir="ltr"
                           onClick={(e) => e.stopPropagation()}
+                          className="opacity-0 group-hover/opt:opacity-100 flex items-center gap-0.5 shrink-0 transition-opacity"
                         >
-                          <input
-                            ref={activeInputRef as any}
-                            type="text"
-                            autoFocus
-                            dir={effectiveDirection}
-                            value={opt.text}
-                            onChange={(e) =>
-                              handleUpdateOption(question.id, opt.id, e.target.value)
-                            }
-                            onBlur={() => setEditingOptionId(null)}
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter') setEditingOptionId(null);
-                            }}
-                            className="w-full px-2 py-0.5 bg-white border border-indigo-500 rounded text-slate-800 outline-none"
-                            style={{ fontSize: `${optFontSizeVal}px` }}
-                          />
+                          {optIdx > 0 && (
+                            <button
+                              type="button"
+                              onClick={() => handleMoveOption(question.id, optIdx, 'up')}
+                              title="Déplacer avant"
+                              className="p-0.5 text-slate-400 hover:text-indigo-600 rounded cursor-pointer"
+                            >
+                              <ArrowUp className="w-3 h-3" />
+                            </button>
+                          )}
+                          {optIdx < question.options.length - 1 && (
+                            <button
+                              type="button"
+                              onClick={() => handleMoveOption(question.id, optIdx, 'down')}
+                              title="Déplacer après"
+                              className="p-0.5 text-slate-400 hover:text-indigo-600 rounded cursor-pointer"
+                            >
+                              <ArrowDown className="w-3 h-3" />
+                            </button>
+                          )}
+                          {question.options.length > 1 && (
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteOption(question.id, opt.id)}
+                              title="Supprimer cette option"
+                              className="p-0.5 text-slate-300 hover:text-red-500 rounded cursor-pointer"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </button>
+                          )}
                         </div>
-                      ) : (
-                        <span
-                          onDoubleClick={() => !readOnly && isSelected && setEditingOptionId(opt.id)}
-                          className="flex-1 font-medium cursor-text select-text truncate"
-                          title={isSelected ? 'Double-cliquez pour modifier l’option' : undefined}
-                        >
-                          <InlineMathText
-                            text={opt.text}
-                            onEquationClick={(formula) =>
-                              handleOpenMathModalForExisting('option', question.id, formula, opt.id)
-                            }
-                          />
-                        </span>
-                      )}
-
-                      {/* Quick Equation edit button on option hover when selected */}
-                      {isSelected && !readOnly && !isOptionEditing && (
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            const optLetter = isRtl
-                              ? ARABIC_LETTERS[optIdx % ARABIC_LETTERS.length]
-                              : LATIN_UPPER[optIdx % LATIN_UPPER.length];
-                            setMathModalTarget({
-                              type: 'option',
-                              qId: question.id,
-                              optId: opt.id,
-                              label: isRtl ? `مقترح (${optLetter})` : `Option (${optLetter})`,
-                            });
-                            setMathModalFormula(opt.text.trim());
-                            setIsMathModalOpen(true);
-                          }}
-                          title="Modifier ou insérer une équation (∑)"
-                          className="opacity-0 group-hover/opt:opacity-100 p-1 text-indigo-500 hover:text-indigo-800 hover:bg-indigo-50 rounded transition-opacity cursor-pointer shrink-0"
-                        >
-                          <Sigma className="w-3 h-3" />
-                        </button>
-                      )}
-
-                      {/* Quick Deletion of Option (hover action - Axe 4) */}
-                      {isSelected && !readOnly && question.options.length > 1 && (
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleDeleteOption(question.id, opt.id);
-                          }}
-                          title="Supprimer cette option"
-                          className="opacity-0 group-hover/opt:opacity-100 p-0.5 text-slate-300 hover:text-red-500 rounded transition-opacity cursor-pointer shrink-0"
-                        >
-                          <Trash2 className="w-3 h-3" />
-                        </button>
                       )}
                     </div>
                   );
                 })}
               </div>
+
+              {/* Corrigé / Explication de la question QCM (éditable avec le Core Editor) */}
+              {showAnswers && (
+                <div className="mt-2 p-2 rounded-lg bg-emerald-50/70 border border-emerald-200/80">
+                  <div className="flex items-center gap-1 mb-0.5">
+                    <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                    <span className="text-[10px] font-bold text-emerald-800 uppercase tracking-wider">
+                      {isRtl ? 'التعليل / الإصلاح :' : 'Explication / Corrigé :'}
+                    </span>
+                  </div>
+                  <CoreRichTextField
+                    value={question.explanation || ''}
+                    onChange={(newExp) => handleUpdateQuestionExplanation(question.id, newExp)}
+                    placeholder={
+                      isRtl
+                        ? 'أضف تعليل الإجابة الصحيحة هنا...'
+                        : 'Ajouter une explication ou justification de la bonne réponse...'
+                    }
+                    isRtl={isRtl}
+                    readOnly={readOnly}
+                    isSelected={isSelected}
+                    styles={{
+                      fontFamily: qFontFamily,
+                      fontSize: Math.max(12, qFontSize - 1),
+                      color: '#065f46',
+                      textDirection: effectiveDirection,
+                    }}
+                    labelBadge="Explication"
+                  />
+                </div>
+              )}
 
               {/* Add Option button */}
               {isSelected && !readOnly && question.options.length < 6 && (

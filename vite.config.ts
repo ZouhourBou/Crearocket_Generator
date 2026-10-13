@@ -265,6 +265,123 @@ function coverApiPlugin(): Plugin {
           res.end('Method Not Allowed');
         }
       });
+
+      // Phase 5: Pedagogical Document & Exam Reconstruction Endpoint
+      server.middlewares.use('/api/import-document', async (req, res) => {
+        if (req.method === 'POST') {
+          let bodyStr = '';
+          req.on('data', (chunk) => {
+            bodyStr += chunk;
+          });
+          req.on('end', async () => {
+            try {
+              const body = bodyStr ? JSON.parse(bodyStr) : {};
+              const apiKey = process.env.GEMINI_API_KEY;
+              const { fileBase64, mimeType = 'image/jpeg', options = {} } = body;
+
+              if (apiKey && fileBase64) {
+                try {
+                  const { GoogleGenAI } = await import('@google/genai');
+                  const ai = new GoogleGenAI({
+                    apiKey,
+                    httpOptions: {
+                      headers: {
+                        'User-Agent': 'aistudio-build',
+                      },
+                    },
+                  });
+
+                  const cleanBase64 = fileBase64.replace(/^data:[^;]+;base64,/, '');
+                  const prompt = `Tu es un expert pédagogique et typographique spécialisé dans l'analyse et la numérisation de devoirs scolaires, examens et fiches d'exercices.
+Analyse ce document (scan/photo/PDF) et convertis-le en une structure JSON rigoureuse pour l'éditeur pédagogique.
+Options demandées:
+- Langue: ${options.language || 'Détection automatique'}
+- Nettoyer les réponses manuscrites: ${options.cleanHandwriting ? 'OUI (garder uniquement énoncé)' : 'NON'}
+- Vectoriser figures/géométrie: ${options.vectorizeGeometry ? 'OUI' : 'NON'}
+
+Retourne UNIQUEMENT un objet JSON valide avec cette structure:
+{
+  "title": "Titre du devoir",
+  "subject": "Mathématiques / Sciences / etc.",
+  "gradeLevel": "Niveau scolaire détecté",
+  "schoolName": "Nom établissement",
+  "totalPoints": 20,
+  "detectedLanguage": "fr",
+  "confidenceScore": 95,
+  "pages": [
+    {
+      "blocks": [
+        {
+          "type": "exam_header",
+          "content": {
+            "title": "Devoir de Contrôle N°1",
+            "subject": "Mathématiques",
+            "gradeLevel": "4ème Année",
+            "duration": "2 heures",
+            "date": "2026-2027",
+            "coefficients": "Coef : 3",
+            "totalPoints": 20
+          }
+        }
+      ]
+    }
+  ]
+}`;
+
+                  const aiResponse = await ai.models.generateContent({
+                    model: 'gemini-2.5-flash',
+                    contents: [
+                      {
+                        role: 'user',
+                        parts: [
+                          {
+                            inlineData: {
+                              data: cleanBase64,
+                              mimeType: mimeType,
+                            },
+                          },
+                          {
+                            text: prompt,
+                          },
+                        ],
+                      },
+                    ],
+                    config: {
+                      responseMimeType: 'application/json',
+                      temperature: 0.1,
+                    },
+                  });
+
+                  const textResponse = aiResponse.candidates?.[0]?.content?.parts?.[0]?.text;
+                  if (textResponse) {
+                    const parsed = JSON.parse(textResponse);
+                    res.setHeader('Content-Type', 'application/json');
+                    res.end(
+                      JSON.stringify({
+                        ok: true,
+                        data: parsed,
+                        isAiGenerated: true,
+                      })
+                    );
+                    return;
+                  }
+                } catch (e: any) {
+                  console.warn('Import document API error:', e?.message);
+                }
+              }
+
+              res.setHeader('Content-Type', 'application/json');
+              res.end(JSON.stringify({ ok: true, fallback: true }));
+            } catch {
+              res.statusCode = 400;
+              res.end(JSON.stringify({ error: 'Invalid payload' }));
+            }
+          });
+        } else {
+          res.statusCode = 405;
+          res.end('Method Not Allowed');
+        }
+      });
     },
   };
 }
